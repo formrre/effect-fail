@@ -97,6 +97,7 @@ RMonad.bindAssoc (RMonadMaybeT record { pure = _ ; _>>=_ = _>>=i_ ; rightId = _ 
       ; (Just w) → cong₂ _>>=i_ refl (funExt λ{ Nothing → refl ; (Just x) → refl}) }) ⟩
   _ ∎)
 
+-- Given a monad then MaybeT is a Monad fail
 RMonadFailMaybeT : {M : Set l1 -> Set l2} -> RMonad M -> RMonadFail (MaybeT M)
 RMonadFail.mA (RMonadFailMaybeT m) = RMonadMaybeT m
 RMonadFail.mfail (RMonadFailMaybeT record { pure = purei ; _>>=_ = _>>=i_ ; rightId = rightIdi ; leftId = leftIdi ; bindAssoc = bindAssoci }) = MT (purei Nothing)
@@ -111,15 +112,16 @@ cmpSet = λ _ _ → false
 
 inSetList : {l : Level} -> (Set l -> Set l) -> List (Set l -> Set l) -> Bool
 inSetList _ [] = false
-inSetList s (x ∷ xs) = case cmpSet s x of λ{ false → inSetList s xs ; true → true} 
+inSetList s (x ∷ xs) = case cmpSet s x of λ{ false → inSetList s xs ; true → true}
 
 boolToSet : Bool -> Set
 boolToSet false = ⊥
 boolToSet true = ⊤
 
+-- Free monad indexed by set of
 data Eff (E : List (Set -> Set)) (A : Set) : Set₁ where
   Pure : A -> Eff E A
-  Impure : {F : Set -> Set} {X : Set} -> boolToSet (inSetList F E) -> F X -> (X -> Eff E A) -> Eff E A
+  Impure : {F : Set -> Set} {X : Set} -> (proof_FinE : boolToSet (inSetList F E)) -> F X -> (X -> Eff E A) -> Eff E A
 
 _>>>_ : {l1 l2 l3 : Level} -> {M : Set l1 -> Set l2} -> {B C : Set l1} -> {A : Set l3} -> (A -> M B) -> (B -> M C) -> {{RM : RMonad M}} -> (A -> M C)
 (f >>> g) ⦃ record { pure = pure ; _>>=_ = _>>=_ ; rightId = rightId ; leftId = leftId ; bindAssoc = bindAssoc } ⦄ x = (f x) >>= g
@@ -152,6 +154,7 @@ RMonad.bindAssoc RMonadEff x f g = effBindAssoc x f g
 EffFail : (E : List (Set -> Set)) -> (A : Set) -> Set₁
 EffFail E A = MaybeT (Eff E) A
 
+-- Specialise previous result that for every monad M, then M is a MonadFail
 RMonadEffFail : {E : List (Set -> Set)} -> RMonadFail (EffFail E)
 RMonadEffFail = RMonadFailMaybeT RMonadEff
 
@@ -162,9 +165,11 @@ run (Impure () _ _)
 runFail : EffFail [] A -> Maybe A
 runFail (MT x) = run x
 
+-- Smart constructor for `Impure`
 send : {E : List (Set -> Set)} {T : Set -> Set} {V : Set} -> (T V) -> boolToSet (inSetList T E) -> Eff E V
 send {E} {T} {V} x prf = Impure {E} {V} {T} {V} prf x Pure
 
+-- Smart constructor `Impure` but inside of a MaybeT
 sendFail : {E : List (Set -> Set)} {T : Set -> Set} {V : Set} -> (T V) -> boolToSet (inSetList T E) -> EffFail E V
 sendFail {E} {T} {V} x prf = MT (Impure {F = T} {X = V} prf x λ x → Pure (Just x))
 
