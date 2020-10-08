@@ -126,6 +126,8 @@ data Eff (E : List (Set -> Set)) (A : Set) : Set₁ where
 _>>>_ : {l1 l2 l3 : Level} -> {M : Set l1 -> Set l2} -> {B C : Set l1} -> {A : Set l3} -> (A -> M B) -> (B -> M C) -> {{RM : RMonad M}} -> (A -> M C)
 (f >>> g) ⦃ record { pure = pure ; _>>=_ = _>>=_ ; rightId = rightId ; leftId = leftId ; bindAssoc = bindAssoc } ⦄ x = (f x) >>= g
 
+-- IDEA: (08/10/2020) This could be a graded monad as well
+
 effbind : {E : List (Set -> Set)} {A B : Set} -> Eff E A -> (A -> Eff E B) -> Eff E B
 effbind (Pure x) k = k x
 effbind {E} {A} {B} (Impure {F} prf f cont) k = Impure {F = F} prf f λ x → effbind (cont x) k
@@ -182,6 +184,8 @@ open import Data.Nat
 {- TODO to provide these nicely in our setting we need type case -}
 decomp : {F : Set -> Set} {X : Set} -> Either ℕ (F X)
 decomp = {!!}
+
+-- IDEA: (08/10/2020) postulate deleteAll (and its relevant properties) instead?
 
 handleRelay : {ES : List (Set -> Set)} {E : Set -> Set} {A B : Set}
    -> (A -> Eff ES B) -> ((∀ {V : Set} → E V -> Eff ES B)) -> Eff ES A -> Eff ES B {- deleteAll E ES ; TODO -}
