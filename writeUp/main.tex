@@ -43,14 +43,16 @@ desugars it into the following,
 \dnote{Citations to its use in the literature and discuss a bit what
   has been said about it there.}
 MonadFail comes with an extra law added to standard Monad laws.
+\dnote{quantify the x and give its type for completeness?}
 %
 \begin{lstlisting}
 mfail >>= x == mfail
 \end{lstlisting}
 %
 Thus, from the view of monads as monoids (in the category of
-endofunctors), then \texttt{mfail} identifies an element of the monoid
-which is \emph{cancellative} or annihilating; local failure becomes
+endofunctors), \texttt{mfail} identifies an element of the monoid
+which is \emph{cancellative} or \emph{annihilating} with respect
+to sequential composition; local failure becomes
 global failure.
 
 \subsection{Standard free monad construction fails}
