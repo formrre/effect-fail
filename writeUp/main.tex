@@ -30,7 +30,7 @@ type system information represented by constructors.
 
 \subsection{Failing pattern matching and MonadFail}
 
-When pattern matching can fail within do-notation in Haskell, it
+When pattern matching can fail within do-notation in Haskell\dMnote{Show an example program?}, it
 desugars it into the following,
 %
 \begin{lstlisting}
@@ -39,6 +39,9 @@ desugars it into the following,
     _ -> mfail)
 \end{lstlisting}
 %
+\dnote{Give type of mfail here.}
+\dnote{Citations to its use in the literature and discuss a bit what
+  has been said about it there.}
 MonadFail comes with an extra law added to standard Monad laws.
 %
 \begin{lstlisting}
