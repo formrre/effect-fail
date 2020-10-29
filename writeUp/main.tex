@@ -48,6 +48,10 @@ MonadFail comes with an extra law added to standard Monad laws.
 mfail >>= x == mfail
 \end{lstlisting}
 %
+Thus, from the view of monads as monoids (in the category of
+endofunctors), then \texttt{mfail} identifies an element of the monoid
+which is \emph{cancellative} or annihilating; local failure becomes
+global failure.
 
 \subsection{Standard free monad construction fails}
 
