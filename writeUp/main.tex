@@ -2,7 +2,9 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage{listings}
-\usepackage{color}
+\usepackage{xcolor}
+
+\input{listing-preamble}
 
 \title{EffectFail formalization}
 \author{Timotej Tomandl}
@@ -33,11 +35,11 @@ type system information represented by constructors.
 When pattern matching can fail within do-notation in Haskell\dMnote{Show an example program?}, it
 desugars it into the following,
 %
-\begin{lstlisting}
+\begin{haskell}
   f >>= (\ x -> case x of
     pat -> remainingComputation
-    _ -> mfail)
-\end{lstlisting}
+    _   -> mfail)
+\end{haskell}
 %
 \dnote{Give type of mfail here.}
 \dnote{Citations to its use in the literature and discuss a bit what
@@ -45,12 +47,12 @@ desugars it into the following,
 MonadFail comes with an extra law added to standard Monad laws.
 \dnote{quantify the x and give its type for completeness?}
 %
-\begin{lstlisting}
+\begin{haskell}
 mfail >>= x == mfail
-\end{lstlisting}
+\end{haskell}
 %
 Thus, from the view of monads as monoids (in the category of
-endofunctors), \texttt{mfail} identifies an element of the monoid
+endofunctors), \haskin{mfail} identifies an element of the monoid
 which is \emph{cancellative} or \emph{annihilating} with respect
 to sequential composition; local failure becomes
 global failure.
