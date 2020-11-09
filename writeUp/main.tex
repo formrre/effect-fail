@@ -30,6 +30,9 @@ patterns and fail in a default way, if they are not satisfied. These
 are important for combining the approach of monadic semantics, with
 type system information represented by constructors.
 
+\dnote{missing a roadmap here of what will be set out and how
+it will be put together.}
+
 \subsection{Failing pattern matching and MonadFail}
 
 When pattern matching can fail within do-notation in Haskell\dMnote{Show an example program?}, it
@@ -63,53 +66,78 @@ If we attempt to give MonadFail instance for the free monad we get
 stuck on the conceptual level already. Free monad being the monad for
 which exactly the Monad equations hold and nothing more on one hand
 and MonadFail on the other hand, which adds an extra equation.
+\dnote{why not construct a notion of a free monad fail?}
 
 \section{Proving that Effect monad is a monad}
 
 \subsection{Standard construction}
 
-Standard proof about Haskell implementation of algebraic effects,
-tends to be conceived in 2 steps, constructing a non-strictly positive
-Free monad and proving that it is a monad for any functor and
-instantiating it with a Left Kan extension. For implementation these
+The standard Haskell implementation of algebraic effects
+tends to be conceived in two steps: constructing a non-strictly positive
+\haskin{Free} monad and proving that it is a monad for any functor,
+then instantiating it with a Left Kan extension.
+\dnote{show it and explain more}
+For an implementation, these two steps
 tend to be fused together and instead of requiring the left Kan
 extension argument is instantiated with the type, we just require that
 it is instantiated with a type, which occurs within a type-level list
-at a given index stored within the datatype. Being in type-level list
+at a given index stored within the datatype.
+\dnote{Got lost here- this sentence started off sounding like it was
+talking about what people do now, but ended up talking about what
+is being done here. Need to separate?}
+ Being in type-level list
 is then enforced through type class constraints. This construction
-looks like the following with F required to occur in E:
+looks like the following with \haskin{F} required to occur in \haskin{E}:
 
-\begin{lstlisting}
-data Effect (E :: [ * -> *]) A where
-    Pure :: A -> Effect E A
-    Impure ::  F X -> (X -> Effect E A) -> Effect E A
-\end{lstlisting}
+\begin{haskell}
+data Effect (E :: [* -> *]) A where
+    Pure   :: A -> Effect E A
+    Impure :: Member F E => F X -> (X -> Effect E A) -> Effect E A
+\end{haskell}
+%
+\dnote{Explain the construction}
 
 \subsection{Our construction in Agda}
 
 We are working in dependently typed setting without type classes and
 as such we need to do multiple tweaks. Without some notion of
 covariance, we have to do the instantiation above in a single step.
+\dnote{I don't undertand this sentence-- we have covariance in Agda?
+Is the problem positivity? Confused!}.
 Also Agda does not provide powerful enough type class resolution
 mechanism and this would be unsatisfyingly metatheoretic. We construct
 our effect monad by tweaking the Haskell construction slightly and
 instead of providing an index to type-level list, we take a proof of
 contained effect's membership in this list. As proofs of membership in
 Agda are proof-relevant this at the same time acts as an index.
+\dnote{show the definition}
 
 \section{Effect API}
 
 Effect API consists of 2 pieces handling and sending an effect, we run
 into an issue with Handling though, when attempting to handle an
 effect we have to do Set comparison, which is not available in Agda.
+\dnote{not enough detail here. What *is* Effect API}
 
 \section{Maybe transformer gives an instance of MonadFail}
 
-We prove that the Maybe transformer is a monad instance for any monad
-and we also proof that it is an instance of MonadFail for any monad.
+\dnote{needs intro text, e.g.}
+A standard approach of adding a notion of failure to an existing
+monad is via a \emph{monad transformer}, typically
+\haskin{MaybeT}~\cite{transformerpub}:
+%
+\begin{haskell}
+newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
+\end{haskell}
+%
+We prove that this transformer is a monad for any monad \haskin{m}.
+We also proof that it is a lawful instance of \haskin{MonadFail} for
+any monad \haskin{m}.
 The first one introduced together with monad transformers
 \cite{transformerpub}, the second one through various Haskell
-implementations \cite{mtl}. We give these constructions in Agda and
+implementations \cite{mtl}.\dnote{not sure what this part was saying,
+are you saying that you are checking that the mtl library is
+correct?} We give these constructions in Agda and
 verify the laws.
 
 \subsection{Effect API through Maybe transformer}
@@ -122,5 +150,7 @@ possibilities is empty we have to extract the pure value, to do this
 we note that impure case requires proof of membership inside the list
 and thus it's not reachable, thus we extract the optional result from
 Pure.
+
+\bibliography{references}
 
 \end{document}
