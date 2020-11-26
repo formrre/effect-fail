@@ -106,6 +106,8 @@ open import Data.List
 open import Data.Bool
 open import Data.Empty
 open import Data.Unit
+
+-- This is really a postulate
 cmpSet : {l : Level} -> (Set l -> Set l) -> (Set l -> Set l) -> Bool
 cmpSet = λ _ _ → false
 
@@ -221,11 +223,11 @@ gunit : {A : Set} → A → Eff [] A
 gunit x = Pure x
 
 boolToSetLemma : {F : Set → Set} -> (X Y : List (Set → Set)) → boolToSet (inSetList F Y) → boolToSet (inSetList F (X ++ Y))
-boolToSetLemma = {!!}
-
+boolToSetLemma {F} [] Y p = p
+boolToSetLemma {F} (x ∷ X) Y p = boolToSetLemma {F} X Y p
 
 boolToSetLemma2 : {F : Set → Set} -> (X Y : List (Set → Set)) → boolToSet (inSetList F X) → boolToSet (inSetList F (X ++ Y))
-boolToSetLemma2 = {!!}
+boolToSetLemma2 {F} (x ∷ X) Y p = boolToSetLemma2 {F} X Y p
 
 upcast : {E NE : List (Set → Set)} → {A : Set} → Eff E A → Eff (NE ++ E) A
 upcast (Pure x) = Pure x
@@ -237,7 +239,18 @@ gbind {A} {B} {XT} {YT} (Pure x) k with k x
 ... | Impure {F} {X} proof_FinE a b = Impure {F = F} {X = X} (boolToSetLemma {F} XT YT proof_FinE) a λ c → upcast (b c)
 gbind {A} {B} {XT} {YT} (Impure {F} {X} proof_FinE x cont) k = Impure {F = F} {X = X} (boolToSetLemma2 {F} XT YT proof_FinE) x λ y → gbind (cont y) k
 
+-- boolToSetUnit : boolTSetLemma [] Y proof ≡ proof
+
+mutual
+  upcastUnit : {E : List (Set -> Set)} {A : Set} {x : Eff E A} -> upcast {E} {[]} x ≡ x
+  upcastUnit {[]} {A} {Pure x} = refl
+  upcastUnit {x ∷ E} {A} {Pure x₁} = refl
+  upcastUnit {x ∷ E} {A} {Impure {F} {X} proof_FinE y k} rewrite upcastUnit' {x ∷ E} {X} {A} {k} = refl
+
+  upcastUnit' : {E : List (Set -> Set)} {A B : Set} {k : A -> Eff E B} -> (λ x -> upcast {E} {[]} (k x)) ≡ k
+  upcastUnit' {E} {A} {B} {k} = funExt (\x -> upcastUnit {E} {B} {k x})
+
 leftUnit : {Y : List (Set → Set)} {A B : Set} {x : A} {f : A → Eff Y B} → gbind (gunit x) f ≡ f x
 leftUnit {Y} {A} {B} {z} {f} with (f z)
 ... | Pure x = refl
-... | Impure proof_FinE x x₁ = {!!}
+... | Impure {fx} {X} proof_FinE x k rewrite upcastUnit' {Y} {X} {B} {k} = refl
