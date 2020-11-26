@@ -62,13 +62,9 @@ myinspect x = x withm≡ refl
 
 postulate
   funExt : ∀ {l1 l2} {A : Set l1} {B : A → Set l2} {f g : (x : A) → B x} →
-<<<<<<< HEAD
            ((x : A) → f x ≡ g x) → f ≡ g
-=======
-             ((x : A) → f x ≡ g x) → f ≡ g
 
   funExtHE : {l j : Level} -> HExt.Extensionality l j
->>>>>>> right unit
 
 helpermt : {l1 l2 : Level} {M : Set l1 -> Set l2} {A B : Set l1}(z : MaybeT M B) {x : M (Maybe B)} -> z ≡ MT x → runMaybeT z ≡ x
 helpermt .(MT _) refl = refl
