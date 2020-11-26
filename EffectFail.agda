@@ -1,3 +1,6 @@
+{-# OPTIONS --injective-type-constructors #-}
+{-# OPTIONS --rewriting #-}
+
 module EffectFail where
 
 open import Agda.Primitive
@@ -53,9 +56,9 @@ data Singleton {a} {A : Set a} (x : A) : Set a where
 myinspect : ∀ {a} {A : Set a} (x : A) → Singleton x
 myinspect x = x withm≡ refl
 
-funExt : ∀ {l1 l2} {A : Set l1} {B : A → Set l2} {f g : (x : A) → B x} →
+postulate
+  funExt : ∀ {l1 l2} {A : Set l1} {B : A → Set l2} {f g : (x : A) → B x} →
            ((x : A) → f x ≡ g x) → f ≡ g
-funExt = {!!}
 
 helpermt : {l1 l2 : Level} {M : Set l1 -> Set l2} {A B : Set l1}(z : MaybeT M B) {x : M (Maybe B)} -> z ≡ MT x → runMaybeT z ≡ x
 helpermt .(MT _) refl = refl
@@ -254,3 +257,42 @@ leftUnit : {Y : List (Set → Set)} {A B : Set} {x : A} {f : A → Eff Y B} → 
 leftUnit {Y} {A} {B} {z} {f} with (f z)
 ... | Pure x = refl
 ... | Impure {fx} {X} proof_FinE x k rewrite upcastUnit' {Y} {X} {B} {k} = refl
+
+++-identityr : {l : Level} {A : Set l} → (Y : List A) → Y ≡ Y ++ []
+++-identityr [] = refl
+++-identityr (x ∷ Y) = cong (x ∷_) (++-identityr Y)
+
+++-identityl : {l : Level} {A : Set l} → {Y : List A} → Y ++ [] ≡ Y
+++-identityl {Y = Y} = sym (++-identityr Y)
+
+{-# BUILTIN REWRITE _≡_ #-}
+{-# REWRITE ++-identityl #-}
+
+cong3 : ∀{i j k l}{A : Set i}{B : Set j}{C : Set k}{D : Set l}{a a' : A}{b b' : B}{c c' : C}
+  → (f : A → B → C → D)
+  → a ≡ a'
+  → b ≡ b'
+  → c ≡ c'
+  → f a b c ≡ f a' b' c'
+cong3 f refl refl refl = refl
+
+rightUnit : {E : List (Set → Set)} {A : Set} {x : Eff E A} → gbind x gunit ≡ x
+rightUnit {E} {A} {Pure x} = refl
+rightUnit {E} {A} {Impure proof_FinE x y} = cong3 Impure {!!} refl (funExt λ z → rightUnit)
+
+
+open import Relation.Binary.HeterogeneousEquality as HE
+
+{-# REWRITE ++-assoc #-}
+
+gassoc : {A B C : Set} {i j k : List (Set → Set)}
+         (m : Eff i A)
+         (f : A -> Eff j B)
+         (g : B -> Eff k C) ->
+         gbind { B } { C } { i ++ j } { k } (gbind { A } { B } { i } { j } m f) g ≡ gbind {A} {C} {i} { j ++ k } m λ x → gbind (f x) g
+gassoc (Pure x) f g with (f x)
+gassoc (Pure x) f g | Pure z with (g z)
+... | Pure x₁ = refl
+... | Impure proof_FinE x₁ x₂ = {!!}
+gassoc (Pure x) f g | Impure proof_FinE x₁ x₂ = {!!}
+gassoc (Impure proof_FinE x x₁) f g = {!!}
