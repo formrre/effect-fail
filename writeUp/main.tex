@@ -105,27 +105,41 @@ data Effect (E :: [* -> *]) A where
 
 We are working in dependently typed setting without type classes and
 as such we need to do multiple tweaks. Without some notion of
-covariance, we have to do the instantiation above in a single step.
-\dnote{I don't undertand this sentence-- we have covariance in Agda?
-Is the problem positivity? Confused!}.
+positive and negative occurences,
+we have to do the instantiation above in a single step.
 Also Agda does not provide powerful enough type class resolution
 mechanism and this would be unsatisfyingly metatheoretic. We construct
 our effect monad by tweaking the Haskell construction slightly and
 instead of providing an index to type-level list, we take a proof of
 contained effect's membership in this list. As proofs of membership in
 Agda are proof-relevant this at the same time acts as an index.
-\dnote{show the definition}
-
+\begin{haskell}
+	data Effect (E : List (Set -> Set)) (A : Set) : Set1 where
+	  Pure : A -> Effect E A
+          Impure : {F : Set} F X -> (F in E) -> (X -> Effect E A) -> Effect E A
+\end{haskell}
+\dnote{Explain the construction, also change to agda env}
+Our construction changes the typeclass resolution constraint of Effect in Haskell to a proof that F occurs in the effect list.
+We further refine this to provide names to every effect in the list and thus being able to refer to each effect by a unique name, instead of by its type.
 \section{Effect API}
 
 Effect API consists of 2 pieces handling and sending an effect, we run
 into an issue with Handling though, when attempting to handle an
 effect we have to do Set comparison, which is not available in Agda.
+API for effects consists of the following.
+\dnote{show agda API}
+send : eff a -> Effect effs a -> Effect (insert eff effs) a
+this sends a new effect inside a monad
+handle : Effect effs a -> (a -> Effect effs2 b) -> (forall eff. eff -> Effect effs2 b) -> Effect effs2 b
+interprets one effect set inside another effect set
+escape : Effect [] a -> a
+this extracts a final value once all effects have been handled
 \dnote{not enough detail here. What *is* Effect API}
 
 \section{Maybe transformer gives an instance of MonadFail}
 
-\dnote{needs intro text, e.g.}
+Now we focus on the next piece and that's giving the MonadFail instance to our Effect monad,
+which justifies pattern matching failures
 A standard approach of adding a notion of failure to an existing
 monad is via a \emph{monad transformer}, typically
 \haskin{MaybeT}~\cite{transformerpub}:
@@ -135,14 +149,12 @@ newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
 \end{haskell}
 %
 We prove that this transformer is a monad for any monad \haskin{m}.
-We also proof that it is a lawful instance of \haskin{MonadFail} for
+We also prove that it is a lawful instance of \haskin{MonadFail} for
 any monad \haskin{m}.
-The first one introduced together with monad transformers
-\cite{transformerpub}, the second one through various Haskell
-implementations \cite{mtl}.\dnote{not sure what this part was saying,
-are you saying that you are checking that the mtl library is
-correct?} We give these constructions in Agda and
-verify the laws.
+The first construction was introduced together with monad transformers
+\cite{transformerpub}, the MonadFail instance in various Haskell
+implementations \cite{mtl}. We give these constructions in Agda and
+verify the laws of \haskin{Monad} and \haskin{MonadFail} given that m is a \haskin{Monad}.
 
 \subsection{Effect API through Maybe transformer}
 
