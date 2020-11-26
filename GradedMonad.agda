@@ -19,7 +19,7 @@ open Monoid
 
 record GMonad {l : Level} : Set (Level.suc (Level.suc l)) where -- Graded monad
   field M : Monoid {l}
-        Gm : Carrier M -> Set -> Set
+        Gm : Carrier M -> Set -> Set₁
         gunit : {A : Set} -> A -> Gm (unit M) A
         gbind  : {A B : Set} {i j : Carrier M} -> Gm i A -> (A -> Gm j B) -> Gm (_⊕_ M i j) B
 

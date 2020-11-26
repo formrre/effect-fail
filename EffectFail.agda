@@ -1,4 +1,3 @@
-{-# OPTIONS --without-K #-}
 module EffectFail where
 
 open import Agda.Primitive
@@ -191,3 +190,54 @@ handleRelay : {ES : List (Set -> Set)} {E : Set -> Set} {A B : Set}
    -> (A -> Eff ES B) -> ((∀ {V : Set} → E V -> Eff ES B)) -> Eff ES A -> Eff ES B {- deleteAll E ES ; TODO -}
 handleRelay ret h (Pure x) = ret x
 handleRelay ret h (Impure prf f cont) = {!!}
+
+open import Data.List.Properties
+
+record Monoid {l : Level} : Set (lsuc l) where
+  field Carrier : Set l
+        unit : Carrier
+        _⊕_ : Carrier -> Carrier -> Carrier
+        assoc : {x y z : Carrier} -> (x ⊕ (y ⊕ z)) ≡ ((x ⊕ y) ⊕ z)
+        unit-left : {x : Carrier} -> (unit ⊕ x) ≡ x
+        unit-right : {x : Carrier} -> (x ⊕ unit) ≡ x
+
+open Monoid
+
+++-unit-r : {l : Level} → {A : Set l} → (xs : List A) → xs ++ [] ≡ xs
+++-unit-r [] = refl
+++-unit-r (x ∷ xs) = cong (_∷_ x) (++-unit-r xs)
+
+MonoidEL : Monoid
+MonoidEL = record
+             { Carrier = List (Set → Set)
+             ; unit = []
+             ; _⊕_ = _++_
+             ; assoc = λ{x}{y}{z} → sym (++-assoc x y z)
+             ; unit-left = refl
+             ; unit-right = λ{x} → ++-unit-r x
+             }
+
+gunit : {A : Set} → A → Eff [] A
+gunit x = Pure x
+
+boolToSetLemma : {F : Set → Set} -> (X Y : List (Set → Set)) → boolToSet (inSetList F Y) → boolToSet (inSetList F (X ++ Y))
+boolToSetLemma = {!!}
+
+
+boolToSetLemma2 : {F : Set → Set} -> (X Y : List (Set → Set)) → boolToSet (inSetList F X) → boolToSet (inSetList F (X ++ Y))
+boolToSetLemma2 = {!!}
+
+upcast : {E NE : List (Set → Set)} → {A : Set} → Eff E A → Eff (NE ++ E) A
+upcast (Pure x) = Pure x
+upcast {E} {NE} {A = A} (Impure {F} {X} proof_FinE x k) = Impure {_} {A} {F} {X} (boolToSetLemma {F} NE E proof_FinE) x λ y → upcast (k y)
+
+gbind : {A B : Set} {X Y : List (Set → Set)} → Eff X A → (A → Eff Y B) → (Eff (X ++ Y) B)
+gbind {A} {B} {XT} {YT} (Pure x) k with k x
+... | Pure y = Pure y
+... | Impure {F} {X} proof_FinE a b = Impure {F = F} {X = X} (boolToSetLemma {F} XT YT proof_FinE) a λ c → upcast (b c)
+gbind {A} {B} {XT} {YT} (Impure {F} {X} proof_FinE x cont) k = Impure {F = F} {X = X} (boolToSetLemma2 {F} XT YT proof_FinE) x λ y → gbind (cont y) k
+
+leftUnit : {Y : List (Set → Set)} {A B : Set} {x : A} {f : A → Eff Y B} → gbind (gunit x) f ≡ f x
+leftUnit {Y} {A} {B} {z} {f} with (f z)
+... | Pure x = refl
+... | Impure proof_FinE x x₁ = {!!}
