@@ -3,8 +3,12 @@
 
 module EffectFail where
 
+open import Level
 open import Agda.Primitive
 open import Relation.Binary.PropositionalEquality
+open import Relation.Binary.HeterogeneousEquality as HE using (_≅_;refl)
+import Relation.Binary.HeterogeneousEquality as HE
+open import Axiom.Extensionality.Heterogeneous as HExt
 
 record RMonad {a b} (M : Set a -> Set b) : Set (lsuc a ⊔ b) where
   field
@@ -58,7 +62,13 @@ myinspect x = x withm≡ refl
 
 postulate
   funExt : ∀ {l1 l2} {A : Set l1} {B : A → Set l2} {f g : (x : A) → B x} →
+<<<<<<< HEAD
            ((x : A) → f x ≡ g x) → f ≡ g
+=======
+             ((x : A) → f x ≡ g x) → f ≡ g
+
+  funExtHE : {l j : Level} -> HExt.Extensionality l j
+>>>>>>> right unit
 
 helpermt : {l1 l2 : Level} {M : Set l1 -> Set l2} {A B : Set l1}(z : MaybeT M B) {x : M (Maybe B)} -> z ≡ MT x → runMaybeT z ≡ x
 helpermt .(MT _) refl = refl
@@ -187,14 +197,14 @@ open import Data.Nat
 
 {- TODO to provide these nicely in our setting we need type case -}
 decomp : {F : Set -> Set} {X : Set} -> Either ℕ (F X)
-decomp = {!!}
+decomp = Left ℕ.zero
 
 -- IDEA: (08/10/2020) postulate deleteAll (and its relevant properties) instead?
 
 handleRelay : {ES : List (Set -> Set)} {E : Set -> Set} {A B : Set}
    -> (A -> Eff ES B) -> ((∀ {V : Set} → E V -> Eff ES B)) -> Eff ES A -> Eff ES B {- deleteAll E ES ; TODO -}
 handleRelay ret h (Pure x) = ret x
-handleRelay ret h (Impure prf f cont) = {!!}
+handleRelay ret h (Impure prf f cont) = Impure prf f (λ z → handleRelay ret h (cont z))
 
 open import Data.List.Properties
 
@@ -244,6 +254,10 @@ gbind {A} {B} {XT} {YT} (Impure {F} {X} proof_FinE x cont) k = Impure {F = F} {X
 
 -- boolToSetUnit : boolTSetLemma [] Y proof ≡ proof
 
+boolToSetLemma2Unit : {F : Set -> Set} -> (X : List (Set -> Set)) -> (z : boolToSet (inSetList F X))
+                  -> boolToSetLemma2 {F} X [] z ≅ z
+boolToSetLemma2Unit {F} (x ∷ X) z = boolToSetLemma2Unit {F} X z
+
 mutual
   upcastUnit : {E : List (Set -> Set)} {A : Set} {x : Eff E A} -> upcast {E} {[]} x ≡ x
   upcastUnit {[]} {A} {Pure x} = refl
@@ -276,10 +290,35 @@ cong3 : ∀{i j k l}{A : Set i}{B : Set j}{C : Set k}{D : Set l}{a a' : A}{b b' 
   → f a b c ≡ f a' b' c'
 cong3 f refl refl refl = refl
 
-rightUnit : {E : List (Set → Set)} {A : Set} {x : Eff E A} → gbind x gunit ≡ x
-rightUnit {E} {A} {Pure x} = refl
-rightUnit {E} {A} {Impure proof_FinE x y} = cong3 Impure {!!} refl (funExt λ z → rightUnit)
+--rightUnit : {E : List (Set → Set)} {A : Set} {x : Eff E A} → gbind x gunit ≡ x
+--rightUnit {E} {A} {Pure x} = refl
+--rightUnit {E} {A} {Impure proof_FinE x y} = cong3 Impure {!!} refl (funExt λ z → rightUnit)
 
+rightUnit : {Y : List (Set -> Set)} {A : Set} {x : Eff Y A} -> gbind x gunit ≅ x
+rightUnit {Y} {A} {Pure x} rewrite ++-unit-r Y = refl
+rightUnit {Y} {A} {Impure {F} {X} proof_FinE x k} =
+  let
+    -- Induction on continuation, lifted by heterogenous function extionality
+    kontEq =
+         funExtHE {lzero} {lsuc lzero} {X} {λ _ → Eff (Y ++ []) A}
+           (λ x₁ → cong (\y -> Eff y A) (++-unit-r Y))
+           (\z -> rightUnit {Y} {A} {k z})
+
+    -- Equality on the membership predicate
+    memberEq =
+         boolToSetLemma2Unit {F} Y proof_FinE
+
+  in
+    -- Heterogeneous binary congruence on `Impure`
+    -- (skipping over the second parameter which stays constant)
+     HE.icong₂
+       (\Y' -> boolToSet (inSetList F Y')) -- Type of first parameter to `Impure`
+       {λ{Y'} _ → X -> Eff Y' A}           -- Type of third parameter to `Impure`
+       {C = \{Y'} _ _ -> Eff Y' A}         -- Result type
+       (++-unit-r Y)                       -- Index equality
+       (\{ix} member kont -> Impure member x kont) -- "Hole" to lift into
+       memberEq                            -- First parameter heteroequality
+       kontEq                              -- Third parameter heteroequality
 
 open import Relation.Binary.HeterogeneousEquality as HE
 
