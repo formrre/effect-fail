@@ -4,6 +4,25 @@
 \usepackage{listings}
 \usepackage{xcolor}
 
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% amsthm math environemtsn
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[section]{Lemma}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+% listing setup
+
 \input{listing-preamble}
 
 \title{EffectFail formalization}
@@ -14,6 +33,8 @@
 \newcommand{\dMnote}[1]{\marginpar{\textcolor{blue}{#1}}}
 \newcommand{\dnote}[1]{\textcolor{blue}{#1}}
 \newcommand{\tnote}[1]{\textcolor{orange}{#1}}
+
+\bibliographystyle{plain}
 
 \begin{document}
 
@@ -133,7 +154,35 @@ Agda are proof-relevant this at the same time acts as an index.
 \end{haskell}
 \dnote{Explain the construction, also change to agda env}
 Our construction changes the typeclass resolution constraint of Effect in Haskell to a proof that F occurs in the effect list.
-We further refine this to provide names to every effect in the list and thus being able to refer to each effect by a unique name, instead of by its type.
+We further refine this to provide names to every effect in the list
+and thus being able to refer to each effect by a unique name, instead
+of by its type.
+
+\subsection{Algebraic effects as graded monads}
+
+The concept of \emph{graded monads} generalises the notion of monads
+from a single endofunctor (e.g., used to model a class of effects) to
+an indexed family of endofunctors, essentially stratifying a model of
+effects into different sub-models distinguished by the
+index~\cite{DBLP:conf/popl/Katsumata14,DBLP:journals/corr/OrchardPM14}. The
+indices have the structure of a monoid or pre-ordered monoid, which is
+leveraged in the graded monad operations which are analogues of the
+usual monad operations (and axioms).
+
+\begin{definition}[Graded monad]
+\dnote{todo}
+\end{definition}
+
+\begin{proposition}[\texttt{Effect} is a graded monad]
+\dnote{expand the details of the construction abstractly.}
+\end{proposition}
+
+The proof has been mechanised in Agda.
+
+\dnote{explain why this is useful: something about how
+this gives a compositional notion of the side effects,
+and their operations, for building up computations.}
+
 \section{Effect API}
 
 Effect API consists of 2 pieces handling and sending an effect, we run
