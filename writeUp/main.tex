@@ -42,7 +42,9 @@
 
 \section{Motivation}
 
-Algebraic effects provide a modular and lower overhead construction to flexibly add new operations to a monad comparatively to a monad transformer. These provide ways to write programs causing abstract effect, which can be given concrete implementation afterwards using handlers. We also want to provide a way to match on
+Algebraic effects provide a modular and lower overhead construction to flexibly add new operations to a monad comparatively to a monad transformer.
+In transformer frameworks we need a new type class instance for every combination of effects and this fixes the implementation.
+These provide ways to write programs causing abstract effect, which can be given concrete implementation afterwards using handlers. We also want to provide a way to match on
 patterns and fail in a default way, if they are not satisfied. These
 are important for combining the approach of monadic semantics, with
 type system information represented by constructors.
