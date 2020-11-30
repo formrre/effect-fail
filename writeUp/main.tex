@@ -3,10 +3,13 @@
 \usepackage[utf8]{inputenc}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{soul}
+\usepackage{sidenotes}
 
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
+
 
 % amsthm math environemtsn
 
@@ -30,9 +33,17 @@
 
 % Meta level
 
-\newcommand{\dMnote}[1]{\marginpar{\textcolor{blue}{#1}}}
+\newcommand{\dnoteM}[1]{\textcolor{blue}{\sidenote{\textcolor{blue}{#1}}}}
 \newcommand{\dnote}[1]{\textcolor{blue}{#1}}
 \newcommand{\tnote}[1]{\textcolor{orange}{#1}}
+
+\newcommand{\ctext}[3][RGB]{%
+  \begingroup
+  \definecolor{hlcolor}{#1}{#2}\sethlcolor{hlcolor}%
+  \hl{#3}%
+  \endgroup
+}
+\newcommand{\highlight}[1]{\ctext[RGB]{255,240,200}{#1}}
 
 \bibliographystyle{plain}
 
@@ -40,28 +51,36 @@
 
 \maketitle
 
-\section{Motivation}
+\section{Introduction}
 
 Algebraic effects provide a modular and lower overhead construction to flexibly add new operations to a monad comparatively to a monad transformer.
 In transformer frameworks we need a new type class instance for every combination of effects and this fixes the implementation.
-These provide ways to write programs causing abstract effect, which can be given concrete implementation afterwards using handlers. We also want to provide a way to match on
-patterns and fail in a default way, if they are not satisfied. These
+These provide ways to write programs causing abstract effect, which can be given concrete implementation afterwards using handlers. \highlight{We also want to provide a way to match on
+patterns and fail in a default way, if they are not
+satisfied}\dnoteM{This is the absolute key sentence I think, but it
+needs more explanation. Why do we want to provide a way to match on
+patterns? What exactly are patterns? And why might they fail?}. These
 are important for combining the approach of monadic semantics, with
 type system information represented by constructors.
 
-Standard formulations of effect monads can not support the interface of MonadFail as they are, because they use a Free Monad construction, which gives the simplest construction for which Monad laws hold.
-We want not only to use Effect API for Monads but also give semantics of pattern matching.
+Standard formulations of effect monads can not support the interface
+of MonadFail\dnoteM{First mention of this-- needs introducing first} as they are, because they use a Free Monad construction, which gives the simplest construction for which Monad laws hold.
+We want not only to use Effect API\dnoteM{What is this?} for Monads but also give semantics of pattern matching.
 As such we set out to find a monad supporting both failure and the Effect API.
 
-Here we identify usefulness of MonadFail for reducing pattern matching boilerplate and provide a formalization of results combining Effect monad with Maybe transformer to provide the correct API.
+Here we identify usefulness of MonadFail for reducing pattern matching
+boilerplate\dnoteM{still yet to explain when/whyy this occurs} and provide a formalization of results combining Effect monad with Maybe transformer to provide the correct API.
 In section 2 we discuss our construction of effect monads and prove that it is a monad and a graded monad.
 In section 3 we provide the implementation of Effect API for this monad.
-In section 4 we construct EffectFail and provide proofs that it is a MonadFail, 
+In section 4 we construct EffectFail and provide proofs that it is a MonadFail,
 give instance lifting graded structure of Effect and provide the Effect API for this monad.
 In section 5 we discuss future directions and applications we have in mind for this formalization.
 \subsection{Failing pattern matching and MonadFail}
 
 When pattern matching can fail within do-notation in Haskell,
+\dnote{I don't think breaking the sentence like this really
+  works. Perhaps explain the overall desuraging of do-notation first, then
+  explain this part.}
 %
 \begin{haskell}
   do
@@ -78,19 +97,30 @@ it desugars it into the following,
     _   -> mfail errorMsg)
 \end{haskell}
 %
-The type of mfail is $String \rightarrow m\:a$. We are interested in formulation not passing error messages as these are ignored by most interesting instances of this.
-For a monad m, the type of mfail will just be
-\begin{haskell}
-	mfail : m a
-\end{haskell}
+The type of \haskin{mfail} is $String \rightarrow m\:a$ for some monad
+$m$. We are interested in formulation not passing error
+messages\dnoteM{What does this mean?} as these are ignored by most interesting instances of this.
 
+The \haskin{MonadFail} type class\dnoteM{Where does it come from?}
+ provides the \haskin{mfail} operation:
+%
+\begin{haskell}
+class Monad m => MonadFail m where
+    mfail : m a
+\end{haskell}
 \dnote{Citations to its use in the literature and discuss a bit what
   has been said about it there.}
-MonadFail comes with an extra law added to standard Monad laws.
+Instances of the \haskin{MonadFail} class should satisfy
+an additional axiom to the standard monad laws, for all $f : \texttt{a
+  -> m b}$ then:
 \begin{haskell}
-	(x : a -> m b) -> mfail >>= x == mfail
+	mfail >>= f == mfail
 \end{haskell}
 %
+i.e., once a failure has occured, as given by \haskin{mfail}, then the
+entire computation fails--subsequent sequentially composed computing
+(e.g., \haskin{f} above) are ignored.
+
 Thus, from the view of monads as monoids (in the category of
 endofunctors), \haskin{mfail} identifies an element of the monoid
 which is \emph{cancellative} or \emph{annihilating} with respect
@@ -104,7 +134,7 @@ stuck on the conceptual level already. Free monad being the monad for
 which exactly the Monad equations hold and nothing more on one hand
 and MonadFail on the other hand, which adds an extra equation.
 Here we focus on forming a reasonable API supporting both effect handling and failure.
-The simplest construction supporting the new law generically is MaybeT as such we focus on this. We conjecture that our construction is a free MonadFail. 
+The simplest construction supporting the new law generically is MaybeT as such we focus on this. We conjecture that our construction is a free MonadFail.
 
 \section{Proving that Effect monad is a monad}
 
@@ -164,7 +194,7 @@ Now the instantiation ends up giving us the following
 		Impure : (B -> EffP F A) -> F B -> EffP F A
 \end{haskell}
 
-We then refine it to 
+We then refine it to
 \subsection{Our construction in Agda}
 
 We are working in dependently typed setting without type classes and
