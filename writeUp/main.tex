@@ -117,7 +117,20 @@ then instantiating it with a Left Kan extension.
 \dnote{show it and explain more}
 For an implementation, these two steps
 tend to be fused together and instead of requiring the left Kan
-extension argument is instantiated with the type, we just require that
+extension argument is instantiated with the type.
+
+We would like to do these conceptually separately for formalization, but we run into a snag, Free monad is not strictly positive and as such can not be consistently implemeted in Agda. The instantiation of Free with the left Kan extension is strictly positive as such we just use the instantiation directly.
+
+\begin{haskell}
+data Effect (E :: [* -> *]) A where
+    Pure   :: A -> Effect E A
+    Impure :: Member F E => F X -> (X -> Effect E A) -> Effect E A
+\end{haskell}
+%
+
+
+
+We just require that
 it is instantiated with a type, which occurs within a type-level list
 at a given index stored within the datatype.
 \dnote{Got lost here- this sentence started off sounding like it was
@@ -127,14 +140,29 @@ is being done here. Need to separate?}
 is then enforced through type class constraints. This construction
 looks like the following with \haskin{F} required to occur in \haskin{E}:
 
+\dnote{Explain the construction}
+We start with the construction of a Free monad, which gives us a monad for any functor.
 \begin{haskell}
-data Effect (E :: [* -> *]) A where
-    Pure   :: A -> Effect E A
-    Impure :: Member F E => F X -> (X -> Effect E A) -> Effect E A
+	data Free (F : * -> *) A where
+		Pure : A -> Free F A
+		Impure : F (Free F A) -> Free F A
 \end{haskell}
 %
-\dnote{Explain the construction}
 
+Then we instatiate F with Left kan extension G, which gives us functor for any G, thus getting a monad for any G.
+
+\begin{haskell}
+	data Lan (F : * -> *) A where
+		FMap : (B -> A) -> F B -> Lan F A
+\end{haskell}
+
+Now the instantiation ends up giving us the following
+
+\begin{haskell}
+	data EffP (F : * -> *) A where
+		Pure : A -> EffP F A
+		Impure : (B -> EffP F A) -> EffP F B -> Lan F A
+\end{haskell}
 \subsection{Our construction in Agda}
 
 We are working in dependently typed setting without type classes and
