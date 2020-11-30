@@ -42,11 +42,7 @@
 
 \section{Motivation}
 
-Algebraic effects provide a good\dMnote{What is meant by good
-  exactly?} construction to flexibly add new operations to a monad
-without much overhead. These provide ways to send messages, which are
-to be replied to\dMnote{This sounds like more an analogy than what
-  they actually provide}. We also want to provide a way to match on
+Algebraic effects provide a modular and lower overhead construction to flexibly add new operations to a monad comparatively to a monad transformer. These provide ways to write programs causing abstract effect, which can be given concrete implementation afterwards using handlers. We also want to provide a way to match on
 patterns and fail in a default way, if they are not satisfied. These
 are important for combining the approach of monadic semantics, with
 type system information represented by constructors.
@@ -105,7 +101,6 @@ If we attempt to give MonadFail instance for the free monad we get
 stuck on the conceptual level already. Free monad being the monad for
 which exactly the Monad equations hold and nothing more on one hand
 and MonadFail on the other hand, which adds an extra equation.
-\dnote{why not construct a notion of a free monad fail?}
 Here we focus on forming a reasonable API supporting both effect handling and failure.
 The simplest construction supporting the new law generically is MaybeT as such we focus on this. We conjecture that our construction is a free MonadFail. 
 
