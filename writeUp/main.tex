@@ -30,28 +30,43 @@ patterns and fail in a default way, if they are not satisfied. These
 are important for combining the approach of monadic semantics, with
 type system information represented by constructors.
 
+Standard formulations of effect monads can not support the interface of MonadFail as they are, because they use a Free Monad construction, which gives the simplest construction for which Monad laws hold.
+We want not only to use Effect API for Monads but also give semantics of pattern matching.
+As such we set out to find a monad supporting both failure and the Effect API.
+
 \dnote{missing a roadmap here of what will be set out and how
 it will be put together.}
-
+We identify usefulness of MonadFail for reducing pattern matching boilerplate and provide a formalization of results when combined with.
 \subsection{Failing pattern matching and MonadFail}
 
-When pattern matching can fail within do-notation in Haskell\dMnote{Show an example program?}, it
-desugars it into the following,
+When pattern matching can fail within do-notation in Haskell,
+%
+\begin{haskell}
+  do
+    pat <- f
+    remainingComputation
+\end{haskell}
+%
+
+it desugars it into the following,
 %
 \begin{haskell}
   f >>= (\ x -> case x of
     pat -> remainingComputation
-    _   -> mfail)
+    _   -> mfail errorMsg)
 \end{haskell}
 %
-\dnote{Give type of mfail here.}
+The type of mfail is $String \rightarrow m\:a$. We are interested in formulation not passing error messages as these are ignored by most interesting instances of this.
+For a monad m, the type of mfail will just be
+\begin{haskell}
+	mfail : m a
+\end{haskell}
+
 \dnote{Citations to its use in the literature and discuss a bit what
   has been said about it there.}
 MonadFail comes with an extra law added to standard Monad laws.
-\dnote{quantify the x and give its type for completeness?}
-%
 \begin{haskell}
-mfail >>= x == mfail
+	(x : a -> m b) -> mfail >>= x == mfail
 \end{haskell}
 %
 Thus, from the view of monads as monoids (in the category of
@@ -67,10 +82,8 @@ stuck on the conceptual level already. Free monad being the monad for
 which exactly the Monad equations hold and nothing more on one hand
 and MonadFail on the other hand, which adds an extra equation.
 \dnote{why not construct a notion of a free monad fail?}
-
-\dnote{From discussion:
-\textbf{Conjecture}: that MaybeT of the free monad \emph{is}
-the free monad fail.}
+Here we focus on forming a reasonable API supporting both effect handling and failure.
+The simplest construction supporting the new law generically is MaybeT as such we focus on this. We conjecture that our construction is a free monad fail. 
 
 \section{Proving that Effect monad is a monad}
 
@@ -166,6 +179,10 @@ possibilities is empty we have to extract the pure value, to do this
 we note that impure case requires proof of membership inside the list
 and this is not possible for the empty list, thus we extract the optional result from
 Pure.
+
+\section{Future directions}
+As much as we have implemented an effect API we would like to also reason about it.
+One possible refinement is for handlers to not only take the instances of a given effect, but also quotient them to enforce that algebraic laws hold \cite{algtheorieshit}.
 
 \bibliography{references}
 
