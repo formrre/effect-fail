@@ -57,7 +57,7 @@ As such we set out to find a monad supporting both failure and the Effect API.
 
 \dnote{missing a roadmap here of what will be set out and how
 it will be put together.}
-We identify usefulness of MonadFail for reducing pattern matching boilerplate and provide a formalization of results when combined with.
+We identify usefulness of MonadFail for reducing pattern matching boilerplate and provide a formalization of results combining Effect monad with Maybe transformer to provide the correct API.
 \subsection{Failing pattern matching and MonadFail}
 
 When pattern matching can fail within do-notation in Haskell,
@@ -231,7 +231,7 @@ Pure.
 
 \section{Future directions}
 As much as we have implemented an effect API we would like to also reason about it.
-One possible refinement is for handlers to not only take the instances of a given effect, but also quotient them to enforce that algebraic laws hold \cite{algtheorieshit}.
+One possible refinement is for handlers to not only take the instances of a given effect, but also quotient them to enforce that algebraic laws hold \cite{algtheorieshit}. This would force us to provide correctness proofs whenever mapping out of a particular effect and ensure that laws used to reason locally are enforced by handlers.
 
 \bibliography{references}
 
