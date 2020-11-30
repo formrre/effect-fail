@@ -161,8 +161,10 @@ Now the instantiation ends up giving us the following
 \begin{haskell}
 	data EffP (F : * -> *) A where
 		Pure : A -> EffP F A
-		Impure : (B -> EffP F A) -> EffP F B -> Lan F A
+		Impure : (B -> EffP F A) -> F B -> EffP F A
 \end{haskell}
+
+We then refine it to 
 \subsection{Our construction in Agda}
 
 We are working in dependently typed setting without type classes and
