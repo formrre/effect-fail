@@ -59,8 +59,34 @@ These provide ways to write programs causing abstract effect, which can be given
 patterns and fail in a default way, if they are not
 satisfied}\dnoteM{This is the absolute key sentence I think, but it
 needs more explanation. Why do we want to provide a way to match on
-patterns? What exactly are patterns? And why might they fail?}. These
-are important for combining the approach of monadic semantics, with
+patterns? What exactly are patterns? And why might they fail?}.
+Patterns play a crucial role in semantics definition of intermediate languages, such as CakeML compiler intermediate representations.
+After some point in compiler we forget the information about typing and make certain operations just fail, if provided with wrong inputs.
+One example from the CakeML compiler being the following,
+%
+\begin{lstlisting}
+      | (El,[RefPtr ptr; Number i]) =>
+        (case FLOOKUP s.refs ptr of
+         | SOME (ValueArray xs) =>
+            (if 0 <= i /\ i < & (LENGTH xs)
+             then Rval (EL (Num i) xs, s)
+             else Error)
+         | _ => Error)
+\end{lstlisting}
+%
+
+Here we lookup a value of ptr and require it contains a specific kind of an array, if any other kind of an array is being pointed to we fail in a default way.
+We would like to rewrite this using Haskell-style do notation as follows,
+%
+\begin{lstlisting}
+	| (El,[RefPtr ptr; Number i]) => do
+  	  (ValueArray xs) <- FLOOKUP s.refs ptr
+	  cond (0 <= i /\ i < & (LENGTH xs))
+	  return (Rval (EL (Num i) xs , s))
+\end{lstlisting}
+%
+
+These are important for combining the approach of monadic semantics, with
 type system information represented by constructors.
 
 Standard formulations of effect monads can not support the interface
