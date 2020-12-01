@@ -75,7 +75,8 @@ One example from the CakeML compiler being the following,
 \end{lstlisting}
 %
 
-Here we lookup a value of ptr and require it contains a specific kind of an array, if any other kind of an array is being pointed to we fail in a default way.
+Here we lookup a value of pointer ptr and require it contains a specific kind of an array, if any other kind of an array is being pointed to we fail in a default way.
+Same happens, when we get an out-of-bounds error, in the if case.
 We would like to rewrite this using Haskell-style do notation as follows,
 %
 \begin{lstlisting}
@@ -86,8 +87,47 @@ We would like to rewrite this using Haskell-style do notation as follows,
 \end{lstlisting}
 %
 
-These are important for combining the approach of monadic semantics, with
-type system information represented by constructors.
+In Haskell this pattern matching bind provides a way to fail with a default value, when pattern matching on the result fails. Whereas normal do-notation,
+%
+\begin{haskell}
+     do
+	x <- action1
+	action2
+\end{haskell}
+%
+desugars to the following,
+%
+\begin{haskell}
+    action1 >>= (\ x -> action2)
+\end{haskell}
+%
+
+This requires, that action1 and action2 have correct monadic types.
+
+The pattern matching bind, where pat is not a variable but a pattern with possible variables included is an extension of this idea,
+%
+\begin{haskell}
+     do
+	pat <- action1
+	action2
+\end{haskell}
+%
+desugars into,
+%
+\begin{haskell}
+    action1 >>= (\ x -> case x of
+	             pat -> action2
+		     _ -> mfail)
+\end{haskell}
+%
+Here x is selected as not to conflict with any user-defined variables. Not only does this desugaring require monadic bind, but also a new operation mfail.
+This is captured in the Haskell type class MonadFail, which add this operation.
+In haskell it is assumed due to the expected semantics of pattern matching that mfail satisfies the following law, for all x,
+%
+\begin{haskell}
+	mfail >>= x = mfail
+\end{haskell}
+%
 
 Standard formulations of effect monads can not support the interface
 of MonadFail\dnoteM{First mention of this-- needs introducing first} as they are, because they use a Free Monad construction, which gives the simplest construction for which Monad laws hold.
