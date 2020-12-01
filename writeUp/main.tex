@@ -194,7 +194,16 @@ Now the instantiation ends up giving us the following
 		Impure : (B -> EffP F A) -> F B -> EffP F A
 \end{haskell}
 
-We then refine it to
+We then then refine it to hold any \haskin{E} from within a type-level list \haskin{F}.
+\begin{haskell}
+      data Eff (F : [* -> *] A where
+              Pure : A -> EffP F A
+              Impure : (Member F E) => (B -> EffP F A) -> E B -> EffP F A
+\end{haskell}
+Being in type-level list
+is then enforced through type class constraints.
+
+
 \subsection{Our construction in Agda}
 
 We are working in dependently typed setting without type classes and
