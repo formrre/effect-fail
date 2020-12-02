@@ -64,7 +64,7 @@ Patterns play a crucial role in semantics definition of intermediate languages, 
 After some point in compiler we forget the information about typing and make certain operations just fail, if provided with wrong inputs.
 One example from the CakeML compiler being the following,
 %
-\begin{lstlisting}
+\begin{lstlisting}[language=Caml,basicstyle=\ttfamily\small]
       | (El,[RefPtr ptr; Number i]) =>
         (case FLOOKUP s.refs ptr of
          | SOME (ValueArray xs) =>
@@ -79,7 +79,7 @@ Here we lookup a value of pointer ptr and require it contains a specific kind of
 Same happens, when we get an out-of-bounds error, in the if case.
 We would like to rewrite this using Haskell-style do notation as follows,
 %
-\begin{lstlisting}
+\begin{lstlisting}[language=Caml,basicstyle=\ttfamily\small]
 	| (El,[RefPtr ptr; Number i]) => do
   	  (ValueArray xs) <- FLOOKUP s.refs ptr
 	  cond (0 <= i /\ i < & (LENGTH xs))
@@ -325,11 +325,24 @@ into an issue with Handling though, when attempting to handle an
 effect we have to do Set comparison, which is not available in Agda.
 API for effects consists of the following.
 \dnote{show agda API}
+
+\begin{agda}
 send : eff a -> Effect effs a -> Effect (insert eff effs) a
+\end{agda}
+
 this sends a new effect inside a monad
-handle : Effect effs a -> (a -> Effect effs2 b) -> (forall eff. eff -> Effect effs2 b) -> Effect effs2 b
+
+\begin{agda}
+handle : Effect effs a -> (a -> Effect effs2 b) -> (forall eff. eff ->
+Effect effs2 b) -> Effect effs2 b
+\end{agda}
+
 interprets one effect set inside another effect set
+
+\begin{agda}
 escape : Effect [] a -> a
+\end{agda}
+
 this extracts a final value once all effects have been handled
 \dnote{not enough detail here. What *is* Effect API}
 
