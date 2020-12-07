@@ -189,7 +189,7 @@ We would like to rewrite this using Haskell-style do notation as follows,
 \section{Background} % Free monads and MonadFail}
 %
 \subsection{Monads and pattern matching}
-\\dnote{Merge with next subsection}
+\dnote{Merge with next subsection}
 In Haskell this pattern matching bind provides a way to fail with a default value, when pattern matching on the result fails. Whereas normal do-notation,
 %
 \begin{haskell}
@@ -451,7 +451,9 @@ This gives a compositional notion of binding and purity.
 this gives a compositional notion of the side effects,
 and their operations, for building up computations.}
 
-Having graded monad laws is useful for combining computations producing different effects. While normal monadic bind only supports combining computations with the same effect set, now we can write our computations independently in the smallest effect set and combine them to produce a new computation with a larger effect set. It consists of operations with similar signatures to bind and pure of our effect monad, but now annotated differently. Graded pure produces only effects with empty set. Graded bind on the other hand produces an effect, which combines the operations. This means our subcomputations are not forced to know the whole set of operations in advance.
+\dnote{The following paragraph is good, and should be moved up /
+  merged with the start of this intro}
+Having graded monad laws is useful for combining computations producing different effects. While normal monadic bind only supports combining computations with the same effect set, now we can write our computations independently in the smallest effect set and combine them to produce a new computation with a larger effect set. It consists of operations with similar signatures to bind and pure of our effect monad, but now annotated differently. Graded pure produces only effects with empty set. Graded bind on the other hand produces an effect, which combines the operations \dnote{By list concatentation}. This means our subcomputations are not forced to know the whole set of operations in advance.
 
 In future we would like to quotient our list of effects to remove duplicated names and thus obtaining graded monad, which is much closer to the instance resolution notion handling-style.
 
