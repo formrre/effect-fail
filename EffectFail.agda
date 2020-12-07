@@ -1,6 +1,5 @@
-{-# OPTIONS --injective-type-constructors #-}
 {-# OPTIONS --rewriting #-}
-
+{-# OPTIONS --confluence-check #-}
 module EffectFail where
 
 open import Level
@@ -131,7 +130,7 @@ boolToSet true = ⊤
 -- Free monad indexed by set of
 data Eff (E : List (Set -> Set)) (A : Set) : Set₁ where
   Pure : A -> Eff E A
-  Impure : {F : Set -> Set} {X : Set} -> (proof_FinE : boolToSet (inSetList F E)) -> F X -> (X -> Eff E A) -> Eff E A
+  Impure : {F : Set -> Set} {X : Set} -> .{proof_FinE : boolToSet (inSetList F E)} -> F X -> (X -> Eff E A) -> Eff E A
 
 _>>>_ : {l1 l2 l3 : Level} -> {M : Set l1 -> Set l2} -> {B C : Set l1} -> {A : Set l3} -> (A -> M B) -> (B -> M C) -> {{RM : RMonad M}} -> (A -> M C)
 (f >>> g) ⦃ record { pure = pure ; _>>=_ = _>>=_ ; rightId = rightId ; leftId = leftId ; bindAssoc = bindAssoc } ⦄ x = (f x) >>= g
@@ -140,7 +139,7 @@ _>>>_ : {l1 l2 l3 : Level} -> {M : Set l1 -> Set l2} -> {B C : Set l1} -> {A : S
 
 effbind : {E : List (Set -> Set)} {A B : Set} -> Eff E A -> (A -> Eff E B) -> Eff E B
 effbind (Pure x) k = k x
-effbind {E} {A} {B} (Impure {F} prf f cont) k = Impure {F = F} prf f λ x → effbind (cont x) k
+effbind {E} {A} {B} (Impure {F} {X} {prf} f cont) k = Impure {F = F} {X} {prf} f λ x → effbind (cont x) k
 
 effpure : {E : List (Set -> Set)} {A : Set} -> A -> Eff E A
 effpure = Pure
@@ -150,11 +149,11 @@ effLeftId x f = refl
 
 effRightId : {E : List (Set -> Set)} {A : Set} -> (x : Eff E A) -> effbind x effpure ≡ x
 effRightId (Pure x) = refl
-effRightId (Impure x y z) = cong (Impure x y) (funExt λ w → effRightId (z w))
+effRightId (Impure x x₁) = cong (Impure x) (funExt λ x₂ → effRightId (x₁ x₂))
 
 effBindAssoc : {E : List (Set -> Set)} {A B C : Set} -> (x : Eff E A) -> (f : A -> Eff E B) -> (g : B -> Eff E C) -> effbind (effbind x f) g ≡ effbind x λ y → effbind (f y) g
 effBindAssoc (Pure x) f g = refl
-effBindAssoc (Impure x u w) f g = cong (Impure x u) (funExt λ z → effBindAssoc (w z) f g)
+effBindAssoc (Impure x z) f g = cong (Impure x) (funExt λ w → effBindAssoc (z w) f g)
 
 RMonadEff : {E : List (Set -> Set)} -> RMonad (Eff E)
 RMonad.pure RMonadEff = effpure
@@ -172,18 +171,17 @@ RMonadEffFail = RMonadFailMaybeT RMonadEff
 
 run : Eff [] A -> A
 run (Pure x) = x
-run (Impure () _ _)
 
 runFail : EffFail [] A -> Maybe A
 runFail (MT x) = run x
 
 -- Smart constructor for `Impure`
-send : {E : List (Set -> Set)} {T : Set -> Set} {V : Set} -> (T V) -> boolToSet (inSetList T E) -> Eff E V
-send {E} {T} {V} x prf = Impure {E} {V} {T} {V} prf x Pure
+send : {E : List (Set -> Set)} {T : Set -> Set} {V : Set} -> (T V) -> .(boolToSet (inSetList T E)) -> Eff E V
+send {E} {T} {V} x irr  = Impure {E} {V} {T} {V} {irr} x Pure
 
 -- Smart constructor `Impure` but inside of a MaybeT
 sendFail : {E : List (Set -> Set)} {T : Set -> Set} {V : Set} -> (T V) -> boolToSet (inSetList T E) -> EffFail E V
-sendFail {E} {T} {V} x prf = MT (Impure {F = T} {X = V} prf x λ x → Pure (Just x))
+sendFail {E} {T} {V} x prf = MT (Impure {F = T} {X = V} {prf} x λ x → Pure (Just x))
 
 data Either {l1 l2 : Level} (A : Set l1) (B : Set l2) : Set (l1 ⊔ l2) where
   Left : A -> Either A B
@@ -196,11 +194,11 @@ decomp : {F : Set -> Set} {X : Set} -> Either ℕ (F X)
 decomp = Left ℕ.zero
 
 -- IDEA: (08/10/2020) postulate deleteAll (and its relevant properties) instead?
-
+-- TODO
 handleRelay : {ES : List (Set -> Set)} {E : Set -> Set} {A B : Set}
    -> (A -> Eff ES B) -> ((∀ {V : Set} → E V -> Eff ES B)) -> Eff ES A -> Eff ES B {- deleteAll E ES ; TODO -}
 handleRelay ret h (Pure x) = ret x
-handleRelay ret h (Impure prf f cont) = Impure prf f (λ z → handleRelay ret h (cont z))
+handleRelay ret h (Impure x x₁) = Impure x (λ z → handleRelay ret h (x₁ z))
 
 open import Data.List.Properties
 
@@ -240,14 +238,13 @@ boolToSetLemma2 {F} (x ∷ X) Y p = boolToSetLemma2 {F} X Y p
 
 upcast : {E NE : List (Set → Set)} → {A : Set} → Eff E A → Eff (NE ++ E) A
 upcast (Pure x) = Pure x
-upcast {E} {NE} {A = A} (Impure {F} {X} proof_FinE x k) = Impure {_} {A} {F} {X} (boolToSetLemma {F} NE E proof_FinE) x λ y → upcast (k y)
+upcast {E} {NE} (Impure {F = F} {X = X} {prf} x k) = Impure {F = F} {X = X} {boolToSetLemma {F} NE E prf} x λ y → upcast (k y)
 
 gbind : {A B : Set} {X Y : List (Set → Set)} → Eff X A → (A → Eff Y B) → (Eff (X ++ Y) B)
 gbind {A} {B} {XT} {YT} (Pure x) k with k x
-... | Pure y = Pure y
-... | Impure {F} {X} proof_FinE a b = Impure {F = F} {X = X} (boolToSetLemma {F} XT YT proof_FinE) a λ c → upcast (b c)
-gbind {A} {B} {XT} {YT} (Impure {F} {X} proof_FinE x cont) k = Impure {F = F} {X = X} (boolToSetLemma2 {F} XT YT proof_FinE) x λ y → gbind (cont y) k
-
+... | Pure x₁ = Pure x₁
+... | Impure {F = F} {X = X} {prf} x₁ x₂ = Impure {F = F} {X = X} { boolToSetLemma {F} XT YT prf } x₁ λ x₃ → upcast (x₂ x₃)
+gbind {A} {B} {XT} {YT} (Impure {F = F} {X = X} {prf} x cont) k = Impure {F = F} {X = X} { boolToSetLemma2 {F} XT YT prf } x λ y → gbind (cont y) k
 -- boolToSetUnit : boolTSetLemma [] Y proof ≡ proof
 
 boolToSetLemma2Unit : {F : Set -> Set} -> (X : List (Set -> Set)) -> (z : boolToSet (inSetList F X))
@@ -258,7 +255,7 @@ mutual
   upcastUnit : {E : List (Set -> Set)} {A : Set} {x : Eff E A} -> upcast {E} {[]} x ≡ x
   upcastUnit {[]} {A} {Pure x} = refl
   upcastUnit {x ∷ E} {A} {Pure x₁} = refl
-  upcastUnit {x ∷ E} {A} {Impure {F} {X} proof_FinE y k} rewrite upcastUnit' {x ∷ E} {X} {A} {k} = refl
+  upcastUnit {x ∷ E} {A} {Impure {F} {X} {proof_FinE} y k} rewrite upcastUnit' {x ∷ E} {X} {A} {k} = refl
 
   upcastUnit' : {E : List (Set -> Set)} {A B : Set} {k : A -> Eff E B} -> (λ x -> upcast {E} {[]} (k x)) ≡ k
   upcastUnit' {E} {A} {B} {k} = funExt (\x -> upcastUnit {E} {B} {k x})
@@ -266,7 +263,7 @@ mutual
 leftUnit : {Y : List (Set → Set)} {A B : Set} {x : A} {f : A → Eff Y B} → gbind (gunit x) f ≡ f x
 leftUnit {Y} {A} {B} {z} {f} with (f z)
 ... | Pure x = refl
-... | Impure {fx} {X} proof_FinE x k rewrite upcastUnit' {Y} {X} {B} {k} = refl
+... | Impure {fx} {X} x k rewrite upcastUnit' {Y} {X} {B} {k} = refl
 
 ++-identityr : {l : Level} {A : Set l} → (Y : List A) → Y ≡ Y ++ []
 ++-identityr [] = refl
@@ -290,44 +287,135 @@ cong3 f refl refl refl = refl
 --rightUnit {E} {A} {Pure x} = refl
 --rightUnit {E} {A} {Impure proof_FinE x y} = cong3 Impure {!!} refl (funExt λ z → rightUnit)
 
-rightUnit : {Y : List (Set -> Set)} {A : Set} {x : Eff Y A} -> gbind x gunit ≅ x
+postulate
+  boolToSetPost :
+   (i j k : List (Set → Set)) (F : Set → Set) → (proofFinE : _) → (boolToSetLemma2 {F} (i ++ j) k (boolToSetLemma2 {F} i j proofFinE)) ≅
+      (boolToSetLemma2 {F} i (j ++ k) proofFinE)
+postulate
+  boolToSetPost2 :
+     (i j k : List (Set → Set)) (F : Set → Set) → (proofFinE : _) → 
+   boolToSetLemma2 {F} (i ++ j) k (boolToSetLemma {F} i j proofFinE) ≅
+      boolToSetLemma {F} i (j ++ k) (boolToSetLemma2 {F} j k proofFinE)
+
+rightUnit : {Y : List (Set -> Set)} {A : Set} {x : Eff Y A} -> gbind x gunit ≡ x
 rightUnit {Y} {A} {Pure x} rewrite ++-unit-r Y = refl
-rightUnit {Y} {A} {Impure {F} {X} proof_FinE x k} =
-  let
-    -- Induction on continuation, lifted by heterogenous function extionality
-    kontEq =
-         funExtHE {lzero} {lsuc lzero} {X} {λ _ → Eff (Y ++ []) A}
-           (λ x₁ → cong (\y -> Eff y A) (++-unit-r Y))
-           (\z -> rightUnit {Y} {A} {k z})
+rightUnit {Y} {A} {Impure {F} {X} x k} rewrite ++-unit-r Y = cong (Impure x) (funExt λ x₁ → begin _ ≡⟨ refl ⟩
+   gbind (k x₁) gunit
+  ≡⟨ rightUnit ⟩
+  _ ∎)
+{-
+module _ {l a b c d : _} {I : Set l} {A : I → Set a} {B : {k : I} → A k → Set b} {C : {k : I} {u : A k} → B u → Set c}
+      {D : {k : I} {u : A k} {v : B u} → C v → Set d} where
+  icong₃ :
+           {i j : I} {x : A i} {y : A j} {u : B x} {v : B y} {uu : C u} {vv : C v} →
+           i ≡ j →
+           (f : {k : I} → (z : A k) → (w : B z) → (m : C w) → D m) →
+           x ≅ y → u ≅ v → uu ≅ vv →
+           f x u uu ≅ f y v vv
+  icong₃ refl _ refl refl refl = refl
+-}
+myicong : {l a b : _} → {I : Set l} {A : I → Set a} {B : {k : I} → A k → Set b} {i j : I} {x : A i} {y : A j} →
+          i ≡ j →
+          (f : {k : I} → (z : A k) → B z) →
+          x ≅ y →
+          f x ≅ f y
+myicong refl _ refl = refl
+{-
+upcastupcast : {C : Set} {i j k : List (Set → Set)}(u : Eff k C) → upcast { j ++ k } { i } (upcast { k } { j } u) ≅  upcast { k } { i ++ j } u
+upcastupcast {C} {i} {j} {k} (Pure x) rewrite ++-assoc i j k = refl
+upcastupcast {C} {i} {j} {k} (Impure {F} {X} {prf} x x₁) = {!!}
+-}
+{-
+gassocHelper : {X C : Set} {i j k : List (Set → Set)} (x₁ : X → Eff j B) (g : B -> Eff k C) → (x₂ : X) → gbind (upcast {j} {i} (x₁ x₂)) g ≅ upcast {j ++ k} {i} (gbind (x₁ x₂) g)
+gassocHelper x₁ g x₂ with x₁ x₂
+gassocHelper x₁ g x₂ | Pure x with g x
+gassocHelper {i = i} {j = j} {k = k} x₁ g x₂ | Pure x | Pure x₃ rewrite ++-assoc i j k = refl
+gassocHelper {C = C} {i = i} {j = j} {k = k} x₁ g x₂ | Pure x | Impure {F} {X} proof_FinE x₃ x₄ = HE.icong₂ _
+   { λ{Y'} _ → X -> Eff Y' C } (++-assoc i j k) (λ {ix} z w → Impure z x₃ w) (boolToSetAnotherLemma2 {F} {i} {j} {k})
+      (funExtHE (λ x₅ → cong₂ Eff (++-assoc i j k) refl) λ x₅ → upcastupcast (x₄ x₅))
+gassocHelper {C = C}  {i = i} {j = j} {k = k} x₁ g x₂ | Impure {F} {X} proof_FinE x x₃ = HE.icong₂ _
+   {λ{Y'} _ → X -> Eff Y' C}
+   (++-assoc i j k) (\{ix} z w → Impure z x w) (boolToSetAnotherLemma {F} {i} {j} {k}) (funExtHE (λ x₄ → cong₂ Eff (++-assoc i j k) refl) λ x₄ → gassocHelper x₃ g x₄)
+-}
+_∋_ : ∀ {a} (A : Set a) → A → A
+A ∋ x = x
 
-    -- Equality on the membership predicate
-    memberEq =
-         boolToSetLemma2Unit {F} Y proof_FinE
+myicong₃ : {l a b c : _} → {I : Set l} {A : I → Set a} {B : {k : I} → A k → Set b} {C : {k : I} -> {kk : A k} → B kk → Set c} {i j : I} {x : A i} {y : A j} →
+          {u : B x} {v : B y} →
+          i ≡ j →
+          (f : {k : I} → (z : A k) → (zz : B z) → C zz) →
+          x ≅ y →
+          u ≅ v →
+          f x u ≅ f y v
+myicong₃ refl _ refl refl = refl
 
-  in
-    -- Heterogeneous binary congruence on `Impure`
-    -- (skipping over the second parameter which stays constant)
-     HE.icong₂
-       (\Y' -> boolToSet (inSetList F Y')) -- Type of first parameter to `Impure`
-       {λ{Y'} _ → X -> Eff Y' A}           -- Type of third parameter to `Impure`
-       {C = \{Y'} _ _ -> Eff Y' A}         -- Result type
-       (++-unit-r Y)                       -- Index equality
-       (\{ix} member kont -> Impure member x kont) -- "Hole" to lift into
-       memberEq                            -- First parameter heteroequality
-       kontEq                              -- Third parameter heteroequality
+hsubst :
+  {l1 l2 : Level}
+  {A    : Set l1}
+  {P    : A → Set l2}
+  {x x' : A}
+  → x ≅ x'
+  → P x
+  → P x' 
+hsubst {P} refl p = p
 
-open import Relation.Binary.HeterogeneousEquality as HE
 
-{-# REWRITE ++-assoc #-}
+myassoc = ++-assoc
+{-# REWRITE myassoc #-}
+
+
+upcastupcast : {C : Set} {i j k : List (Set → Set)}(u : Eff k C) → upcast { j ++ k } { i } (upcast { k } { j } u) ≡  upcast { k } { i ++ j } u
+upcastupcast {C} {i} {j} {k} (Pure x) = refl
+upcastupcast {C} {i} {j} {k} (Impure {F} {X} {prf} x x₁) = cong (Impure x) (funExt λ x₂ → upcastupcast (x₁ x₂))
+
+gbindupcast : {i j k : List (Set → Set)} {B C : Set} (g : B → Eff k C) → (nf : Eff j B) → gbind (upcast {j} {i} nf) g ≡ upcast { j ++ k } { i } (gbind nf g)
+gbindupcast g (Pure n) with g n
+... | Pure x = refl
+... | Impure x x₁ = cong (Impure x) (funExt λ y → sym (upcastupcast (x₁ y)))
+gbindupcast g (Impure n nn) = cong (Impure n) (funExt (λ x → gbindupcast g (nn x)))
 
 gassoc : {A B C : Set} {i j k : List (Set → Set)}
          (m : Eff i A)
          (f : A -> Eff j B)
          (g : B -> Eff k C) ->
          gbind { B } { C } { i ++ j } { k } (gbind { A } { B } { i } { j } m f) g ≡ gbind {A} {C} {i} { j ++ k } m λ x → gbind (f x) g
-gassoc (Pure x) f g with (f x)
-gassoc (Pure x) f g | Pure z with (g z)
-... | Pure x₁ = refl
-... | Impure proof_FinE x₁ x₂ = {!!}
-gassoc (Pure x) f g | Impure proof_FinE x₁ x₂ = {!!}
-gassoc (Impure proof_FinE x x₁) f g = {!!}
+gassoc {A} {B} {C} {i} {j} {k} (Pure x) f g with f x
+gassoc {A} {B} {C} {i} {j} {k} (Pure x) f g | Pure z with g z
+gassoc {A} {B} {C} {i} {j} {k} (Pure x) f g | Pure z | Pure x₁ = refl
+gassoc {A} {B} {C} {i} {j} {k} (Pure x) f g | Pure z | Impure x₁ x₂ = cong (Impure x₁) (funExt λ x₃ → sym (upcastupcast (x₂ x₃)))
+gassoc {A} {B} {C} {i} {j} {k} (Pure x) f g | Impure {F = F} x₁ x₂ =
+  cong (Impure x₁) (funExt λ x₃ → gbindupcast {i = i} {j = j} {k = k} {B = B} {C = C} g (x₂ x₃))
+gassoc {A} {B} {C} {i} {j} {k} (Impure {F} {X} x x₁) f g = cong (Impure x) (funExt λ x₂ → gassoc (x₁ x₂) f g)
+
+{-
+gassoc {A} {B} {C} {i} {j} {k} y@(Pure x) f g with f x
+gassoc {A} {B} {C} {i} {j} {k} y@(Pure x) f g | Pure a  with g a
+... | Pure x₁ rewrite ++-assoc i j k = HE.refl
+... | Impure {F} {X} proof_FinE x₁ = {!!}
+gassoc {A} {B} {C} {i} {j} {k} y@(Pure p) f g | Impure {F} {X} proof_FinE  =
+    -- Heterogeneous binary congruence on `Impure`
+    -- (skipping over the second parameter which stays constant)
+     HE.icong₂
+       _ -- Type of first parameter to `Impure`
+       {λ{Y'} _ → X -> Eff Y' C}           -- Type of third parameter to `Impure`
+       (++-assoc i j k)                       -- Index equality
+       (\{ix} member kont -> Impure member kont) -- "Hole" to lift into
+       (boolToSetPost2 i j k F proof_FinE)                           -- First parameter heteroequality
+       (funExtHE (λ x₂ → cong₂ Eff (++-assoc i j k) refl) λ x₂ → ?)                              -- Third parameter heteroequality       
+
+gassoc {A} {B} {C} {i} {j} {k} (Impure {F} {X} proof_FinE x x₁) f g = let
+    kontEq = funExtHE
+       (λ x₂ → cong₂ Eff (++-assoc i j k) refl)
+       λ x₂ → gassoc (x₁ x₂) f g
+    in
+    -- Heterogeneous binary congruence on `Impure`
+    -- (skipping over the second parameter which stays constant)
+     HE.icong₂
+       _ -- Type of first parameter to `Impure`
+       {λ{Y'} _ → X -> Eff Y' C}           -- Type of third parameter to `Impure`
+       (++-assoc i j k)                       -- Index equality
+       (\{ix} member kont -> Impure member x kont) -- "Hole" to lift into
+       (boolToSetPost i j k F proof_FinE)                            -- First parameter heteroequality
+       kontEq                              -- Third parameter heteroequality       
+-}
+
