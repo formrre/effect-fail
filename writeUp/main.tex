@@ -53,15 +53,115 @@
 
 \section{Introduction}
 
-Algebraic effects provide a modular and lower overhead construction to flexibly add new operations to a monad comparatively to a monad transformer.
-In transformer frameworks we need a new type class instance for every combination of effects and this fixes the implementation.
-These provide ways to write programs causing abstract effect, which can be given concrete implementation afterwards using handlers. \highlight{We also want to provide a way to match on
+% introduce effect semantics via handlers vs. monads
+Functional programming presents an opportunity to reconsider the role
+of side effects in programs. There have been various techniques
+proposed for integrating effects smoothly into functional code.
+The predominant approaches are \emph{algebraic effects} and the
+\emph{monadic} approach. One of the motivations behind algebraic
+effects is the desire to allow the management of side effects
+to be \emph{extensible}.
+Algebraic effects provide a modular and lower overhead construction to
+flexibly add new operations to a monad comparatively to a monad
+transformer.\dnote{Mention monad transformers with regards
+  extensibility earlier.}
+%
+In monad transformer frameworks we need a new type class instance for every
+combination of effects and this makes the implementation less
+flexible.
+%
+Algebraic effects
+provide ways to write programs causing effects which are treated
+abstractly initially but which are given concrete implementations
+afterwards using \emph{handlers} (akin to raising an exception and
+later handling it).
+\tnote{Explain what is meant by ``Effect API''; example: exceptions
+  catch-throw and generalising that form of handling}
+
+\tnote{mention modular monadic semantics}
+
+% jump from context/techniques to the problem
+Whilst algeraic effects are growing in maturity as a technique, there
+still exist some pain points with regards their practical use when
+compared with monads and monad transformers. In this paper, we
+study the problem of \emph{failure}, especially with regards
+manging pattern matching failures. In Haskell, a well-used technique
+is the \texttt{MonadFail} pattern, which captures pattern match failure
+as an effect for a particular monad to reduce boilerplate.
+\tnote{Say something about where to expose the way handlers
+come into the picture-- handlers inform the encodings.}
+However, the central approach of algebraic effects uses the
+free monad construction\marginpar{\tnote{Motivate why the
+free monad construction is used re simplicity/universality.}},
+which does not admit the \texttt{MonadFail} pattern immediately.
+We want not only to use the Effect API\dnoteM{What is this?} for monads
+but also give a semantics of pattern matching that may fail.
+As such we set out to find a monad supporting both failure and the Effect API.
+
+% OLD TEXT
+% Standard formulations of effect monads can not support the
+% interface of MonadFail\dnoteM{First mention of this-- needs
+% introducing first} as they are, because they use a Free Monad
+% construction, which gives the simplest construction for which Monad
+% laws hold.
+
+
+% grading
+
+% summarise the reuslts
+We make the following contributions:
+%
+\begin{enumerate}
+\item We refine a standard free monad construction to a form that is
+  suitable for formalisation in a proof assistant---we use Agda. We
+  prove this is still a monad.
+
+\item We show that applying the standard \texttt{MaybeT} monad
+  transformer to oru free monad construction yields a lawful
+(i.e., well behaved) \texttt{MonadFail} instance, allowing
+it to capture pattern matching failure.
+
+\item Furthermore, we show that this construction also
+yields a graded monad, giving a typed representation of
+the effects yielded by a computation.
+
+% ...
+\end{enumerate}
+%
+We name this approach \textit{EffectFail} since it combines the idea
+of a free monad for capturing algebraic effects with the
+\texttt{MonadFail} pattern of Haskell.
+
+\dnote{PUT STRUCTURE HERE.}
+In Section 2, we discuss our construction of effect monads and prove that it is a monad and a graded monad.
+In Section 3, we provide the implementation of the Effect API for this monad.
+In Section 4, we construct the \emph{EffectFail} interface, showing
+that it satisfies the \texttt{MonadFail} laws.
+\dnote{OLD TEXT:
+give instance lifting graded structure of Effect and provide the
+Effect API for this monad.
+}
+In Section 5, we discuss future directions and applications we have in mind for this formalization.
+
+
+% context of this use case
+%
+
+\subsection{Motivating example}
+
+\dnote{example involving state effects and pattern matching failures
+there.}
+
+We also want to provide a way to match on
 patterns and fail in a default way, if they are not
-satisfied}\dnoteM{This is the absolute key sentence I think, but it
-needs more explanation. Why do we want to provide a way to match on
-patterns? What exactly are patterns? And why might they fail?}.
-Patterns play a crucial role in semantics definition of intermediate languages, such as CakeML compiler intermediate representations.
-After some point in compiler we forget the information about typing and make certain operations just fail, if provided with wrong inputs.
+satisfied
+
+\paragraph{Wider context}
+
+Patterns play a crucial role in semantics definition of intermediate
+languages, such as CakeML compiler intermediate representations.
+After some point in the compiler we forget the information about typing
+and make certain operations just fail if provided with wrong inputs.
 One example from the CakeML compiler being the following,
 %
 \begin{lstlisting}[language=Caml,basicstyle=\ttfamily\small]
@@ -74,7 +174,6 @@ One example from the CakeML compiler being the following,
          | _ => Error)
 \end{lstlisting}
 %
-
 Here we lookup a value of pointer ptr and require it contains a specific kind of an array, if any other kind of an array is being pointed to we fail in a default way.
 Same happens, when we get an out-of-bounds error, in the if case.
 We would like to rewrite this using Haskell-style do notation as follows,
@@ -87,6 +186,10 @@ We would like to rewrite this using Haskell-style do notation as follows,
 \end{lstlisting}
 %
 
+\section{Background} % Free monads and MonadFail}
+%
+\subsection{Monads and pattern matching}
+\\dnote{Merge with next subsection}
 In Haskell this pattern matching bind provides a way to fail with a default value, when pattern matching on the result fails. Whereas normal do-notation,
 %
 \begin{haskell}
@@ -129,18 +232,6 @@ In haskell it is assumed due to the expected semantics of pattern matching that 
 \end{haskell}
 %
 
-Standard formulations of effect monads can not support the interface
-of MonadFail\dnoteM{First mention of this-- needs introducing first} as they are, because they use a Free Monad construction, which gives the simplest construction for which Monad laws hold.
-We want not only to use Effect API\dnoteM{What is this?} for Monads but also give semantics of pattern matching.
-As such we set out to find a monad supporting both failure and the Effect API.
-
-Here we identify usefulness of MonadFail for reducing pattern matching
-boilerplate\dnoteM{still yet to explain when/whyy this occurs} and provide a formalization of results combining Effect monad with Maybe transformer to provide the correct API.
-In section 2 we discuss our construction of effect monads and prove that it is a monad and a graded monad.
-In section 3 we provide the implementation of Effect API for this monad.
-In section 4 we construct EffectFail and provide proofs that it is a MonadFail,
-give instance lifting graded structure of Effect and provide the Effect API for this monad.
-In section 5 we discuss future directions and applications we have in mind for this formalization.
 \subsection{Failing pattern matching and MonadFail}
 
 When pattern matching can fail within do-notation in Haskell,
@@ -193,19 +284,57 @@ which is \emph{cancellative} or \emph{annihilating} with respect
 to sequential composition; local failure becomes
 global failure.
 
-\subsection{Standard free monad construction fails}
+\subsection{Free monads and algebraic effects}
+\dnote{simple free monads}
 
-If we attempt to give MonadFail instance for the free monad we get
-stuck on the conceptual level already. Free monad being the monad for
-which exactly the Monad equations hold and nothing more on one hand
-and MonadFail on the other hand, which adds an extra equation.
+\subsubsection{Standard free monad construction fails}
+
+If we attempt to give a \texttt{MonadFail} instance for the free monad we get
+stuck on the conceptual level already: the free monad, being the monad for
+which exactly the monad equations hold and nothing more on one hand
+and \texttt{MonadFail} on the other hand, which adds an extra equation.
 Here we focus on forming a reasonable API supporting both effect handling and failure.
-The simplest construction supporting the new law generically is MaybeT as such we focus on this. We conjecture that our construction is a free MonadFail.
+The simplest construction supporting the new law generically is
+\texttt{MaybeT}, which we focus on in the next section. We conjecture
+that our construction is a free \texttt{MonadFail} (see
+Section~\ref{sec:future-work})
 
-\section{Proving that Effect monad is a monad}
+\subsection{Effect API}
+
+Effect API consists of 2 pieces handling and sending an effect, we run
+into an issue with Handling though, when attempting to handle an
+effect we have to do Set comparison, which is not available in Agda.
+API for effects consists of the following.
+\dnote{show agda API}
+
+\begin{agda}
+send : eff a -> Effect effs a -> Effect (insert eff effs) a
+\end{agda}
+
+this sends a new effect inside a monad
+
+\begin{agda}
+handle : Effect effs a -> (a -> Effect effs2 b) -> (forall eff. eff ->
+Effect effs2 b) -> Effect effs2 b
+\end{agda}
+
+interprets one effect set inside another effect set
+
+\begin{agda}
+escape : Effect [] a -> a
+\end{agda}
+
+this extracts a final value once all effects have been handled
+\dnote{not enough detail here. What *is* Effect API}
+
+
+
+\section{A free monad constructrion for algebraic effects}
+\label{sec:effect-monad}
 
 \subsection{Standard construction}
 
+\dnote{We need to mention the literature and on what this is based.}
 The standard Haskell implementation of algebraic effects
 tends to be conceived in two steps: constructing a non-strictly positive
 \haskin{Free} monad and proving that it is a monad for any functor,
@@ -217,6 +346,7 @@ extension argument is instantiated with the type.
 
 We would like to do these conceptually separately for formalization, but we run into a snag, Free monad is not strictly positive and as such can not be consistently implemeted in Agda. The instantiation of Free with the left Kan extension is strictly positive as such we just use the instantiation directly.
 
+\dnote{Cite}
 \begin{haskell}
 data Effect (E :: [* -> *]) A where
     Pure   :: A -> Effect E A
@@ -225,6 +355,9 @@ data Effect (E :: [* -> *]) A where
 %
 
 
+\dnote{Point out that most existing works aim for efficiency; our
+aim is for formalisability and mechanised proof.}
+\dnote{Point out this occupies an intermediate step in many papers.}
 
 We just require that
 it is instantiated with a type, which occurs within a type-level list
@@ -382,8 +515,12 @@ and this is not possible for the empty list, thus we extract the optional result
 Pure.
 
 \section{Future directions}
+\label{sec:future-work}
+
 As much as we have implemented an effect API we would like to also reason about it.
 One possible refinement is for handlers to not only take the instances of a given effect, but also quotient them to enforce that algebraic laws hold \cite{algtheorieshit}. This would force us to provide correctness proofs whenever mapping out of a particular effect and ensure that laws used to reason locally are enforced by handlers.
+
+\dnote{Need to explore universal properties via initial algebra constructio.}
 
 \bibliography{references}
 
