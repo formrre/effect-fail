@@ -198,8 +198,7 @@ We can further refine this using state monad,
 This hides the state passing of s from users view. But there are other operations, not everything is looked up through state, some operations might lookup in a current environment or throw an exception. As such we would like to combine differet operations in a single monad.
 \section{Background} % Free monads and MonadFail}
 %
-\subsection{Monads and pattern matching}
-\dnote{Merge with next subsection}
+\subsection{Monads, MonadFail and failing pattern matching}
 In Haskell this pattern matching bind provides a way to fail with a default value, when pattern matching on the result fails. Whereas normal do-notation,
 %
 \begin{haskell}
@@ -241,52 +240,17 @@ In haskell it is assumed due to the expected semantics of pattern matching that 
 	mfail >>= x = mfail
 \end{haskell}
 %
-
-\subsection{Failing pattern matching and MonadFail}
-
-When pattern matching can fail within do-notation in Haskell,
-\dnote{I don't think breaking the sentence like this really
-  works. Perhaps explain the overall desuraging of do-notation first, then
-  explain this part.}
-%
-\begin{haskell}
-  do
-    pat <- f
-    remainingComputation
-\end{haskell}
-%
-
-it desugars it into the following,
-%
-\begin{haskell}
-  f >>= (\ x -> case x of
-    pat -> remainingComputation
-    _   -> mfail errorMsg)
-\end{haskell}
-%
-The type of \haskin{mfail} is $String \rightarrow m\:a$ for some monad
-$m$. We are interested in formulation not passing error
-messages\dnoteM{What does this mean?} as these are ignored by most interesting instances of this.
-
-The \haskin{MonadFail} type class\dnoteM{Where does it come from?}
- provides the \haskin{mfail} operation:
-%
-\begin{haskell}
-class Monad m => MonadFail m where
-    mfail : m a
-\end{haskell}
-\dnote{Citations to its use in the literature and discuss a bit what
-  has been said about it there.}
-Instances of the \haskin{MonadFail} class should satisfy
-an additional axiom to the standard monad laws, for all $f : \texttt{a
-  -> m b}$ then:
-\begin{haskell}
-	mfail >>= f == mfail
-\end{haskell}
-%
 i.e., once a failure has occured, as given by \haskin{mfail}, then the
 entire computation fails--subsequent sequentially composed computing
 (e.g., \haskin{f} above) are ignored.
+
+
+The type of \haskin{mfail} in Haskell is $String \rightarrow m\:a$ for some monad
+$m$. We are interested in formulation not passing error
+messages, as these are used in Haskell to identify the reason, why the pattern matched fail and potetially print out errors. These are ignored by most interesting instances in the I/O free setting.
+
+\dnote{Citations to its use in the literature and discuss a bit what
+  has been said about it there.}
 
 Thus, from the view of monads as monoids (in the category of
 endofunctors), \haskin{mfail} identifies an element of the monoid
@@ -336,8 +300,12 @@ escape : Effect [] a -> a
 
 this extracts a final value once all effects have been handled
 \dnote{not enough detail here. What *is* Effect API}
-
-
+Send let's us write computation causing abstract effects,
+handle gives concrete interpretation to this abstraction and escape finishes once we have
+concretized interpreted all possible effects by handling.
+The most interesting part of this is handle, it let's us reinterpter
+effectful computation in terms of other effectful computations and gradually give a concrete implementation.
+\dnote{fix notation on ops}
 
 \section{A free monad constructrion for algebraic effects}
 \label{sec:effect-monad}
@@ -363,11 +331,6 @@ data Effect (E :: [* -> *]) A where
     Impure :: Member F E => F X -> (X -> Effect E A) -> Effect E A
 \end{haskell}
 %
-
-
-\dnote{Point out that most existing works aim for efficiency; our
-aim is for formalisability and mechanised proof.}
-\dnote{Point out this occupies an intermediate step in many papers.}
 
 While previous approaches \cite{kiselyov} aim mostly for efficiency of implementation we aim for ease of proofs. As such we take intermediate point in the design space of this paper.
 
@@ -464,7 +427,7 @@ This gives a compositional notion of binding and purity.
 
 \dnote{The following paragraph is good, and should be moved up /
   merged with the start of this intro}
-Having graded monad laws is useful for combining computations producing different effects. While normal monadic bind only supports combining computations with the same effect set, now we can write our computations independently in the smallest effect set and combine them to produce a new computation with a larger effect set. It consists of operations with similar signatures to bind and pure of our effect monad, but now annotated differently. Graded pure produces only effects with empty set. Graded bind on the other hand produces an effect, which combines the operations \dnote{By list concatentation}. This means our subcomputations are not forced to know the whole set of operations in advance.
+Having graded monad laws is useful for combining computations producing different effects. While normal monadic bind only supports combining computations with the same effect set, now we can write our computations independently in the smallest effect set and combine them to produce a new computation with a larger effect set. It consists of operations with similar signatures to bind and pure of our effect monad, but now annotated differently. Graded pure produces only effects with empty set. Graded bind on the other hand produces an effect, which combines the operations by list concatentation. This means our subcomputations are not forced to know the whole set of operations in advance.
 
 In future we would like to quotient our list of effects to remove duplicated names and thus obtaining graded monad, which is much closer to the instance resolution notion handling-style.
 
