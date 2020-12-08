@@ -51,6 +51,10 @@
 
 \maketitle
 
+\begin{abstract}
+	TODO
+\end{abstract}
+
 \section{Introduction}
 
 % introduce effect semantics via handlers vs. monads
@@ -344,9 +348,11 @@ is being done here. Need to separate?}
 is then enforced through type class constraints. This construction
 looks like the following with \haskin{F} required to occur in \haskin{E}:
 
-\dnote{Explain the construction}
 
-We show our construction, step-by-step. Our construction is adapted from the work of Kyseliov and traces back to using free monads to represent uninterpreted effects, the idea is that Free monad imposes the minimum amount of constraints, while still being a monad, in other words the only laws that should hold for it are the monad laws, with rest of the operations being unconstrained.
+The construction works by looking for inspiration to category theory and taking the free structure for monadic equations, which gives a generic construction which satisfies monadic equations for every functor. This gives a structure, which satisfies the monad laws, but does not impose any extra laws by itself, this gives us a way to use monadic notation and reasoning and imposes only the expected restrictions.
+It then looks to elevate the requirement of functoriality by taking a generic construction, which returns a functor for any type family.
+
+We show our construction, step-by-step. Our construction is adapted from the work of Kyseliov \cite{freerm} and traces back to using free monads to represent uninterpreted effects, the idea is that Free monad imposes the minimum amount of constraints, while still being a monad, in other words the only laws that should hold for it are the monad laws, with rest of the operations being unconstrained.
 
 We start with the construction of a Free monad, which gives us a monad for any functor.
 \begin{haskell}
@@ -374,8 +380,8 @@ Now the instantiation ends up giving us the following
 We then then refine it to hold any \haskin{E} from within a type-level list \haskin{F}.
 \begin{haskell}
       data Eff (F : [* -> *] A where
-              Pure : A -> EffP F A
-              Impure : (Member F E) => (B -> EffP F A) -> E B -> EffP F A
+              Pure : A -> Eff F A
+              Impure : (Member F E) => (B -> Eff F A) -> E B -> Eff F A
 \end{haskell}
 Being in type-level list
 is then enforced through type class constraints.
@@ -398,7 +404,7 @@ Agda are proof-relevant this at the same time acts as an index.
 	  Pure : A -> Effect E A
           Impure : {F : Set} F X -> (F in E) -> (X -> Effect E A) -> Effect E A
 \end{haskell}
-\dnote{Explain the construction, also change to agda env}
+\dnote{Change to agda env}
 Our construction changes the typeclass resolution constraint of Effect in Haskell to a proof that F occurs in the effect list.
 We further refine this to provide names to every effect in the list
 and thus being able to refer to each effect by a unique name, instead
@@ -495,7 +501,7 @@ Pure.
 
 As much as we have implemented an effect API we would like to also reason about it.
 One possible refinement is for handlers to not only take the instances of a given effect, but also quotient them to enforce that algebraic laws hold \cite{algtheorieshit}. This would force us to provide correctness proofs whenever mapping out of a particular effect and ensure that laws used to reason locally are enforced by handlers.
-We would like to explore how to use category theoretic constructions relating initial algebras to quotient types, to encode the relationship between a free algebras and their handlers.
+We would like to explore how to use category theoretic constructions relating initial algebras to quotient types, to encode the relationship between free algebras and their handlers.
 This would involve proving that our construction is the free algebra with respect to the algebraic signature of MonadFail laws and then relating the quotiented variants to interpretaions via initial constructions.
 \dnote{add citations}
 
