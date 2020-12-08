@@ -457,14 +457,10 @@ usual monad operations (and axioms).
 \end{definition}
 
 \begin{proposition}[\texttt{Effect} is a graded monad]
-\dnote{expand the details of the construction abstractly.}
 \end{proposition}
 
 The proof has been mechanised in Agda.
 This gives a compositional notion of binding and purity.
-\dnote{explain why this is useful: something about how
-this gives a compositional notion of the side effects,
-and their operations, for building up computations.}
 
 Having graded monad laws is useful for combining computations producing different effects. While normal monadic bind only supports combining computations with the same effect set, now we can write our computations independently in the smallest effect set and combine them to produce a new computation with a larger effect set. It consists of operations with similar signatures to bind and pure of our effect monad, but now annotated differently. Graded pure produces only effects with empty set. Graded bind on the other hand produces an effect, which combines the operations. This means our subcomputations are not forced to know the whole set of operations in advance.
 
