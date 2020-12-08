@@ -5,6 +5,7 @@
 \usepackage{xcolor}
 \usepackage{soul}
 \usepackage{sidenotes}
+\usepackage{url}
 
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -203,7 +204,11 @@ This hides the state passing of s from users view. But there are other operation
 \section{Background} % Free monads and MonadFail}
 %
 \subsection{Monads, MonadFail and failing pattern matching}
-In Haskell this pattern matching bind provides a way to fail with a default value, when pattern matching on the result fails. Whereas normal do-notation,
+%
+Haskell provides a syntactic sugar for composing monadic computations,
+called the ``do'' notation~\cite{jones2003haskell}, that is similar to Moggi's monadic
+metalanguage~\cite{moggi1991notions}. The basic form is akin to a kind
+of let-binding:
 %
 \begin{haskell}
      do
@@ -211,16 +216,27 @@ In Haskell this pattern matching bind provides a way to fail with a default valu
 	action2
 \end{haskell}
 %
-desugars to the following,
+which desugars to the following Haskell code:
 %
 \begin{haskell}
     action1 >>= (\ x -> action2)
 \end{haskell}
 %
+This requires, that terms \haskin{action1} and \haskin{action2} both return
+a value of a shared monadic type, e.g. \haskin{action1 :: m a} and
+\haskin{action2 :: m b} for some monadic type \haskin{m}. The
+\haskin{>>=} operation is pronouced \emph{bind}, providing the key
+notion of monadic sequential composition: \haskin{(>>=) :: m a -> (a
+  -> m b) -> m b}. The notation \haskin{x <- ...} is often also then
+referred to as a ``bind''.
 
-This requires, that action1 and action2 have correct monadic types.
-
-The pattern matching bind, where pat is not a variable but a pattern with possible variables included is an extension of this idea,
+The pattern matching bind, where pat is not a variable but a pattern
+with possible variables included is an extension of this
+idea,\dnoteM{This sentence needs work; it introduced ``pat'' first
+  before it is shown which is not going to help the read. Also
+what is ``The pattern matching bind''. This is using a new compound
+nound that hasn't seen yet in the text. Better to explain that binding
+can be done to patterns, generalising the above to what follows next.}
 %
 \begin{haskell}
      do
@@ -236,9 +252,10 @@ desugars into,
 		     _ -> mfail)
 \end{haskell}
 %
+\dnoteM{use the inline Haskell macro}
 Here x is selected as not to conflict with any user-defined variables. Not only does this desugaring require monadic bind, but also a new operation mfail.
-This is captured in the Haskell type class MonadFail, which add this operation.
-In haskell it is assumed due to the expected semantics of pattern matching that mfail satisfies the following law, for all x,
+This is captured in the Haskell type class MonadFail, which add this
+operation.\dnoteM{just show the class?} In haskell it is assumed due to the expected semantics of pattern matching that mfail satisfies the following law, for all x,
 %
 \begin{haskell}
 	mfail >>= x = mfail
@@ -247,7 +264,10 @@ In haskell it is assumed due to the expected semantics of pattern matching that 
 i.e., once a failure has occured, as given by \haskin{mfail}, then the
 entire computation fails--subsequent sequentially composed computing
 (e.g., \haskin{f} above) are ignored.
-
+\dnote{Actually I think it is called \haskin{fail}, just checked. TODO:
+  integrate references and context
+  \cite{gibbons2011just},\cite{malakhovski2018exceptionally},
+\cite{monadfailproposal}}
 
 The type of \haskin{mfail} in Haskell is $String \rightarrow m\:a$ for some monad
 $m$. We are interested in formulation not passing error
