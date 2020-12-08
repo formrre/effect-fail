@@ -154,7 +154,7 @@ there.}
 
 We also want to provide a way to match on
 patterns and fail in a default way, if they are not
-satisfied
+satisfied.
 
 \paragraph{Wider context}
 
@@ -186,6 +186,16 @@ We would like to rewrite this using Haskell-style do notation as follows,
 \end{lstlisting}
 %
 
+We can further refine this using state monad,
+%
+\begin{lstlisting}[language=Caml,basicstyle=\ttfamily\small]
+      | (El,[RefPtr ptr; Number i]) => do
+      	  (ValueArray xs) <- FLOOKUP ptr
+	  cod (0 <= i /\ i < & (LENGTH xs))
+	  return (Rval (EL (Num i) xs))
+\end{lstlisting}
+%
+This hides the state passing of s from users view. But there are other operations, not everything is looked up through state, some operations might lookup in a current environment or throw an exception. As such we would like to combine differet operations in a single monad.
 \section{Background} % Free monads and MonadFail}
 %
 \subsection{Monads and pattern matching}
@@ -359,6 +369,8 @@ data Effect (E :: [* -> *]) A where
 aim is for formalisability and mechanised proof.}
 \dnote{Point out this occupies an intermediate step in many papers.}
 
+While previous approaches \cite{kiselyov} aim mostly for efficiency of implementation we aim for ease of proofs. As such we take intermediate poit in the design space of this paper.
+
 We just require that
 it is instantiated with a type, which occurs within a type-level list
 at a given index stored within the datatype.
@@ -370,6 +382,9 @@ is then enforced through type class constraints. This construction
 looks like the following with \haskin{F} required to occur in \haskin{E}:
 
 \dnote{Explain the construction}
+
+We show our construction, step-by-step. Our construction is adapted from the work of Kyseliov and traces back to using free monads to represent uninterpreted effects, the idea is that Free monad imposes the minimum amount of constraints, while still being a monad, in other words the only laws that should hold for it are the monad laws, with rest of the operations being unconstrained.
+
 We start with the construction of a Free monad, which gives us a monad for any functor.
 \begin{haskell}
 	data Free (F : * -> *) A where
@@ -519,8 +534,9 @@ Pure.
 
 As much as we have implemented an effect API we would like to also reason about it.
 One possible refinement is for handlers to not only take the instances of a given effect, but also quotient them to enforce that algebraic laws hold \cite{algtheorieshit}. This would force us to provide correctness proofs whenever mapping out of a particular effect and ensure that laws used to reason locally are enforced by handlers.
-
-\dnote{Need to explore universal properties via initial algebra constructio.}
+We would like to explore how to use category theoretic constructions relating initial algebras to quotient types, to encode the relationship between a free algebras and their handlers.
+This would involve proving that our construction is the free algebra with respect to the algebraic signature of MonadFail laws and then relating the quotiented variants to interpretaions via initial constructions.
+\dnote{add citations}
 
 \bibliography{references}
 
