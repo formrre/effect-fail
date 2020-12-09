@@ -441,7 +441,8 @@ In future we would like to quotient our list of effects to remove duplicated nam
 
 
 \begin{definition}[Graded monad]
-\dnote{todo}
+	Graded monad has similar structure as a monad except it's elements are annotated by elements from a monoid \dnote{define}.
+	Graded return operation is annotated by the monoid's unit and graded bind uses the monoids associative operation to combine the annotations of subcomputations.
 \end{definition}
 
 \begin{proposition}[\texttt{Effect} is a graded monad]
