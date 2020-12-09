@@ -457,27 +457,27 @@ Effect API consists of 2 pieces handling and sending an effect, we run
 into an issue with Handling though, when attempting to handle an
 effect we have to do Set comparison, which is not available in Agda.
 API for effects consists of the following.
-\dnote{show agda API}
+
+An effect API is an interface to our library, it goes beyond the monad interfce and provides operations, which can run within a monad or on the monad.
 
 \begin{agda}
 send : eff a -> Effect effs a -> Effect (insert eff effs) a
 \end{agda}
 
-this sends a new effect inside a monad
+This above sends a new effect inside a monad.
 
 \begin{agda}
 handle : Effect effs a -> (a -> Effect effs2 b) -> (forall eff. eff ->
 Effect effs2 b) -> Effect effs2 b
 \end{agda}
 
-interprets one effect set inside another effect set
+Interprets one effect set inside another effect set, allowing us to elaborate certain features in terms of new ones or a smaller set of features.
 
 \begin{agda}
 escape : Effect [] a -> a
 \end{agda}
 
-this extracts a final value once all effects have been handled
-\dnote{not enough detail here. What *is* Effect API}
+This extracts a final value once all effects have been handled.
 
 \section{Maybe transformer gives an instance of MonadFail}
 
