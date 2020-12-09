@@ -340,21 +340,15 @@ effectful computation in terms of other effectful computations and gradually giv
 The standard Haskell implementation of algebraic effects
 tends to be conceived in two steps: constructing a non-strictly positive
 \haskin{Free} monad and proving that it is a monad for any functor,
-then instantiating it with a Left Kan extension.
-\dnote{show it and explain more}
+then instantiating it with a Left Kan extension, which gives us the functor for any type family.
 For an implementation, these two steps
 tend to be fused together and instead of requiring the left Kan
 extension argument is instantiated with the type.
+\dnote{show it and explain more - need to restructure as we show it quite a bit further}
 
 We would like to do these conceptually separately for formalization, but we run into a snag, Free monad is not strictly positive and as such can not be consistently implemeted in Agda. The instantiation of Free with the left Kan extension is strictly positive as such we just use the instantiation directly.
 
 \dnote{Cite}
-\begin{haskell}
-data Effect (E :: [* -> *]) A where
-    Pure   :: A -> Effect E A
-    Impure :: Member F E => F X -> (X -> Effect E A) -> Effect E A
-\end{haskell}
-%
 
 While previous approaches \cite{kiselyov} aim mostly for efficiency of implementation we aim for ease of proofs. As such we take intermediate point in the design space of this paper.
 
