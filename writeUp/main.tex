@@ -67,39 +67,42 @@ The predominant approaches are \emph{algebraic effects} and the
 effects is the desire to allow the management of side effects
 to be \emph{extensible}.
 Algebraic effects provide a modular and lower overhead construction to
-flexibly add new operations to a monad comparatively to a monad
-transformer.\dnote{Mention monad transformers with regards
+flexibly add new operations to a monad, compared to a monad
+transformer approach.\dnote{Mention monad transformers with regards
   extensibility earlier.}
 %
 In monad transformer frameworks we need a new type class instance for every
 combination of effects and this makes the implementation less
 flexible.
-%
+
 Algebraic effects
 provide ways to write programs causing effects which are treated
 abstractly initially but which are given concrete implementations
 afterwards using \emph{handlers} (akin to raising an exception and
 later handling it).
-This generalizes to general effects they provide a way to
+This generalizes to general effects: effect handlers provide a way to
 not only handle general exceptions, but to also remember some state between handling different operations a handler is responsible for.
-This allows implementing stateful computation for example, we capture the current state and next effect's handling will be aware of it.
-Thus an effect API provides a way to send effects and handle them, where send corresponds to throwing and handle to catching an exception.
+This allows implementing stateful computation where, for example, we
+capture the current state and next effect's handling\dnoteM{something
+  wrong with the sentence structure} will be aware of it.
+Thus an effect API\dnoteM{first mention of effect API- explain what
+  you mean by this, i.e., introduce the term.}provides a way to `send' effects and `handle' them, where `send' corresponds to throwing and `handle' to catching an exception.
 
 \tnote{mention modular monadic semantics}
 
-\subsetion{Problem statement}
+\paragraph{Problem statement}
 % jump from context/techniques to the problem
-Whilst algeraic effects are growing in maturity as a technique, there
-still exist some pain points with regards their practical use when
+Whilst algebraic effects are growing in maturity as a technique, there
+still exists some pain points with regards their practical use when
 compared with monads and monad transformers. In this paper, we
 study the problem of \emph{failure}, especially with regards
-manging pattern matching failures. In Haskell, a well-used technique
+managing pattern matching failures. In Haskell, a well-used technique
 is the \texttt{MonadFail} pattern, which captures pattern match failure
 as an effect for a particular monad to reduce boilerplate.
 \tnote{Say something about where to expose the way handlers
 come into the picture-- handlers inform the encodings.}
 However, the central approach of algebraic effects uses the
-free monad construction\marginpar{\tnote{Motivate why the
+free monad construction\marginpar{\tnote{Motivate briefly why the
 free monad construction is used re simplicity/universality.}},
 which does not admit the \texttt{MonadFail} pattern immediately.
 We want not only to use the Effect API\dnoteM{What is this?} for monads
@@ -125,7 +128,7 @@ We make the following contributions:
   prove this is still a monad.
 
 \item We show that applying the standard \texttt{MaybeT} monad
-  transformer to oru free monad construction yields a lawful
+  transformer to our free monad construction yields a lawful
 (i.e., well behaved) \texttt{MonadFail} instance, allowing
 it to capture pattern matching failure.
 
@@ -334,7 +337,7 @@ The most interesting part of this is handle, it let's us reinterpter
 effectful computation in terms of other effectful computations and gradually give a concrete implementation.
 \dnote{fix notation on ops}
 
-\section{A free monad constructrion for algebraic effects}
+\section{A free monad construction for algebraic effects}
 \label{sec:effect-monad}
 
 \subsection{Standard construction}
