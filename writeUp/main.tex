@@ -354,14 +354,8 @@ While previous approaches \cite{kiselyov} aim mostly for efficiency of implement
 
 We just require that
 it is instantiated with a type, which occurs within a type-level list
-at a given index stored within the datatype.
-\dnote{Got lost here- this sentence started off sounding like it was
-talking about what people do now, but ended up talking about what
-is being done here. Need to separate?}
- Being in type-level list
-is then enforced through type class constraints. This construction
-looks like the following with \haskin{F} required to occur in \haskin{E}:
-
+at a given index stored within the datatype. Being in type-level list
+is then enforced through type class constraints.
 
 The construction works by looking for inspiration to category theory and taking the free structure for monadic equations, which gives a generic construction which satisfies monadic equations for every functor. This gives a structure, which satisfies the monad laws, but does not impose any extra laws by itself, this gives us a way to use monadic notation and reasoning and imposes only the expected restrictions.
 It then looks to elevate the requirement of functoriality by taking a generic construction, which returns a functor for any type family.
