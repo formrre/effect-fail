@@ -66,10 +66,14 @@ The predominant approaches are \emph{algebraic effects} and the
 \emph{monadic} approach. One of the motivations behind algebraic
 effects is the desire to allow the management of side effects
 to be \emph{extensible}.
+
+Monad transformers start with an encoding and only afterwards attempt to provide the necessary operations. Effects do the reverse we firt think in terms of operation and equations, which the
+y should satisfy and only provide implementation afterwars. An advantage of it is that the interpretation does not change structure of already written code, while this tends to happen when adding new oper
+ations using transformers. \dnote{cite}
+
 Algebraic effects provide a modular and lower overhead construction to
 flexibly add new operations to a monad, compared to a monad
-transformer approach.\dnote{Mention monad transformers with regards
-  extensibility earlier.}
+transformer approach.
 %
 In monad transformer frameworks we need a new type class instance for every
 combination of effects and this makes the implementation less
@@ -86,9 +90,9 @@ This allows implementing stateful computation where, for example, we
 capture the current state and next effect's handling\dnoteM{something
   wrong with the sentence structure} will be aware of it.
 Thus an effect API\dnoteM{first mention of effect API- explain what
-  you mean by this, i.e., introduce the term.}provides a way to `send' effects and `handle' them, where `send' corresponds to throwing and `handle' to catching an exception.
+  you mean by this, i.e., introduce the term.}provides a way to `send' effects and `handle' them, where `send' corresponds to throwing and `handle' to catching an exception. Thus an effect API provides a way to send effects and handle them, where send corresponds to throwing and handle to catching an exception. It also provides a way to extract the final value once we have handled all effects.
 
-\tnote{mention modular monadic semantics}
+One of our larger aims is to explore how to emulate modular monadic semantics \cite{Schrijvers}, which provides composable way to combine language feature with monadic semantics approach, which allows expressing semantics in terms of operations provided by transformers. We hope this gives a good start towards managing complexities, which arise with pattern matching and algebraic effects.
 
 \paragraph{Problem statement}
 % jump from context/techniques to the problem
@@ -105,7 +109,9 @@ However, the central approach of algebraic effects uses the
 free monad construction\marginpar{\tnote{Motivate briefly why the
 free monad construction is used re simplicity/universality.}},
 which does not admit the \texttt{MonadFail} pattern immediately.
-We want not only to use the Effect API\dnoteM{What is this?} for monads
+The free monad construction is used for imposing exacty the minmal amount of structure necessary for an object to be a monad, all other structures will impose extra laws, while free monad provides only the monad laws.
+
+We want not only to use the Effect API for monads
 but also give a semantics of pattern matching that may fail.
 As such we set out to find a monad supporting both failure and the Effect API.
 
@@ -480,7 +486,9 @@ handle : Effect effs a -> (a -> Effect effs2 b) -> (forall eff. eff ->
 Effect effs2 b) -> Effect effs2 b
 \end{agda}
 
-Interprets one effect set inside another effect set, allowing us to elaborate certain features in terms of new ones or a smaller set of features.
+
+Interprets one effect set inside another effect set, allowing us to elaborate certain features in terms of new ones or a smaller set of features. This is a missing piece in current implementation as implementing it with our current representation, would require pattern matching on types. We believe this extension to be consistent, but we would prefer to tweak our representation to not require this assumption.
+
 
 \begin{agda}
 escape : Effect [] a -> a
@@ -525,7 +533,7 @@ Pure.
 As much as we have implemented an effect API we would like to also reason about it.
 One possible refinement is for handlers to not only take the instances of a given effect, but also quotient them to enforce that algebraic laws hold \cite{algtheorieshit}. This would force us to provide correctness proofs whenever mapping out of a particular effect and ensure that laws used to reason locally are enforced by handlers.
 We would like to explore how to use category theoretic constructions relating initial algebras to quotient types, to encode the relationship between free algebras and their handlers.
-This would involve proving that our construction is the free algebra with respect to the algebraic signature of MonadFail laws and then relating the quotiented variants to interpretaions via initial constructions.
+This would involve proving that our construction is the free algebra with respect to the algebraic signature of MonadFail laws and then relating the quotiented variants to interpretations via initial constructions.
 \dnote{add citations}
 
 \bibliography{references}
