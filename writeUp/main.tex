@@ -444,7 +444,8 @@ In future we would like to quotient our list of effects to remove duplicated nam
 
 
 \begin{definition}[Graded monad]
-	Graded monad has similar structure as a monad except it's elements are annotated by elements from a monoid \dnote{define}.
+	Graded monad has similar structure as a monad except it's elements are annotated by elements from a monoid. Monoid being simple a structure on a set S,
+	consisting of an associative binary operations m : S x S -> S, and a dedicated element E in S which acts as both left and right unit.
 	Graded return operation is annotated by the monoid's unit and graded bind uses the monoids associative operation to combine the annotations of subcomputations.
 \end{definition}
 
