@@ -10,7 +10,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
-
+\usepackage{agda}
 
 % amsthm math environemtsn
 
@@ -68,8 +68,8 @@ effects is the desire to allow the management of side effects
 to be \emph{extensible}.
 
 Monad transformers start with an encoding and only afterwards attempt to provide the necessary operations. Effects do the reverse we firt think in terms of operation and equations, which the
-y should satisfy and only provide implementation afterwars. An advantage of it is that the interpretation does not change structure of already written code, while this tends to happen when adding new oper
-ations using transformers. \dnote{cite}
+y should satisfy and only provide implementation afterwards. An advantage of it is that the interpretation does not change structure of already written code, while this tends to happen when adding new oper
+ations using transformers. \cite{exteff}
 
 Algebraic effects provide a modular and lower overhead construction to
 flexibly add new operations to a monad, compared to a monad
@@ -140,6 +140,8 @@ it to capture pattern matching failure.
 yields a graded monad, giving a typed representation of
 the effects yielded by a computation.
 
+\item We provide a partial implementation and verification of these ideas in Agda \ref{repo}
+
 % ...
 \end{enumerate}
 %
@@ -147,15 +149,11 @@ We name this approach \textit{EffectFail} since it combines the idea
 of a free monad for capturing algebraic effects with the
 \texttt{MonadFail} pattern of Haskell.
 
-\dnote{PUT STRUCTURE HERE.}
-In Section 2, we discuss our construction of effect monads and prove that it is a monad and a graded monad.
+In Section 2, we discuss the background of our work
+In Section 3, we discuss our construction of effect monads and prove that it is a monad and a graded monad.
 In Section 3, we provide the implementation of the Effect API for this monad.
 In Section 4, we construct the \emph{EffectFail} interface, showing
 that it satisfies the \texttt{MonadFail} laws.
-\dnote{OLD TEXT:
-give instance lifting graded structure of Effect and provide the
-Effect API for this monad.
-}
 In Section 5, we discuss future directions and applications we have in mind for this formalization.
 
 
@@ -237,13 +235,7 @@ notion of monadic sequential composition: \haskin{(>>=) :: m a -> (a
   -> m b) -> m b}. The notation \haskin{x <- ...} is often also then
 referred to as a ``bind''.
 
-The pattern matching bind, where pat is not a variable but a pattern
-with possible variables included is an extension of this
-idea,\dnoteM{This sentence needs work; it introduced ``pat'' first
-  before it is shown which is not going to help the read. Also
-what is ``The pattern matching bind''. This is using a new compound
-nound that hasn't seen yet in the text. Better to explain that binding
-can be done to patterns, generalising the above to what follows next.}
+The pattern matching bind,
 %
 \begin{haskell}
      do
@@ -251,18 +243,28 @@ can be done to patterns, generalising the above to what follows next.}
 	action2
 \end{haskell}
 %
+where pat is not a variable but a pattern
+with possible variables included is an extension of this
+idea,
 desugars into,
 %
 \begin{haskell}
     action1 >>= (\ x -> case x of
 	             pat -> action2
-		     _ -> mfail)
+		     _ -> fail)
 \end{haskell}
 %
-\dnoteM{use the inline Haskell macro}
+
 Here x is selected as not to conflict with any user-defined variables. Not only does this desugaring require monadic bind, but also a new operation fail.
-This is captured in the Haskell type class MonadFail, which add this
-operation.\dnoteM{just show the class?} In haskell it is assumed due to the expected semantics of pattern matching that fail satisfies the following law, for all x,
+This is captured in the Haskell type class MonadFail, which adds this
+operation.
+
+The type of \haskin{fail} in Haskell is $String \rightarrow m\:a$ for some monad
+$m$. We are interested in formulation not passing error
+messages, as these are used in Haskell to identify the reason, why the pattern matched fail and potetially print out errors. These are ignored by most interesting instances in the I/O free setting.
+
+
+In haskell it is assumed due to the expected semantics of pattern matching that fail satisfies the following law, for all x,
 %
 \begin{haskell}
 	fail >>= x = fail
@@ -274,13 +276,7 @@ entire computation fails--subsequent sequentially composed computing
 \dnote{TODO:
   integrate references and context
   \cite{gibbons2011just},\cite{malakhovski2018exceptionally},
-\cite{monadfailproposal}}
-
-The type of \haskin{mfail} in Haskell is $String \rightarrow m\:a$ for some monad
-$m$. We are interested in formulation not passing error
-messages, as these are used in Haskell to identify the reason, why the pattern matched fail and potetially print out errors. These are ignored by most interesting instances in the I/O free setting.
-
-\dnote{TODO SCitations to its use in the literature and discuss a bit what
+\cite{monadfailproposal}} SCitations to its use in the literature and discuss a bit what
   has been said about it there.}
 
 Thus, from the view of monads as monoids (in the category of
@@ -290,9 +286,11 @@ to sequential composition; local failure becomes
 global failure.
 
 \subsection{Free monads and algebraic effects}
-\dnote{simple free monads} todo non-ref
+To provide algebraic effects, the normally used construction is that of a free monad.
+The reason for this is that it provides the simplest monad possible, for a given functor.
+This allows for imposing only laws of monads and nothing more, this is important as we do not want to impose any laws, which do not come from the effects. This is further followed by lifting the restriction that we need a functor, by using a construction, which gives functor for any type family, this allows holding exactly one effect. This can be then refined to hold any effect out of certain collection.
 
-\subsubsection{Standard free monad construction fails}
+\subsubsection{Standard free monad construction can not provide mfail}
 
 If we attempt to give a \texttt{MonadFail} instance for the free monad we get
 stuck on the conceptual level already: the free monad, being the monad for
@@ -328,7 +326,7 @@ interprets one effect set inside another effect set
 escape : Effect [] a -> a
 \end{agda}
 
-this extracts a final value once all effects have been handled
+this extracts a final value once all effects have been handled.
 Send let's us write computation causing abstract effects,
 handle gives concrete interpretation to this abstraction and escape finishes once we have
 concretized interpreted all possible effects by handling.
@@ -340,12 +338,10 @@ effectful computation in terms of other effectful computations and gradually giv
 
 \subsection{Standard construction}
 
-\dnote{ TODO We need to mention the literature and on what this is based.}
-The standard Haskell implementation of algebraic effects
-tends to be conceived in two steps: constructing a non-strictly positive
+Standard Haskell implementation of algebraic effects,  following Kiselyov \cite{Kiselyov},
+tend to be conceived in two steps: constructing a non-strictly positive
 \haskin{Free} monad and proving that it is a monad for any functor,
-then instantiating it with a Left Kan extension, which gives us the functor for any type family.
-For an implementation, these two steps
+then instantiating it with a Left Kan extension, which gives us the functor for any type family.For an implementation, these two steps
 tend to be fused together and instead of requiring the left Kan
 extension argument is instantiated with the type.
 
@@ -356,21 +352,19 @@ extension argument is instantiated with the type.
 \end{haskell}
 %
 
-The above Free monad gives us a conceptual way to encode operations of monads as simply remembering what happenned.
+The above Free monad gives us a monad for any functor F, being the simplest such construction, satisfying only the laws imposed by Functor instance of F and the monadic laws.
 
-Then we instatiate F with Left kan extension G, which gives us functor for any G, thus getting a monad for any G.
+Then we instatiate F with Left kan extension of G, which gives us functor for any G, thus getting a monad for any G.
 
 \begin{haskell}
-	data Lan (F : * -> *) A where
-		FMap : (B -> A) -> F B -> Lan F A
+	data Lan (G : * -> *) A where
+		FMap : (B -> A) -> G B -> Lan G A
 \end{haskell}
 %
 
-This construction remembers is a functor, which when mapping just remembers the arguments and accumulates functions, which were mapped.
+When mapping this construction just remembers the arguments and accumulates functions, which were mapped.
 
 We would like to do these conceptually separately for formalization, but we run into a snag, Free monad is not strictly positive and as such can not be consistently implemeted in Agda. The instantiation of Free with the left Kan extension is strictly positive as such we just use the instantiation directly.
-
-\dnote{Cite}
 
 While previous approaches \cite{kiselyov} aim mostly for efficiency of implementation we aim for ease of proofs. As such we take intermediate point in the design space of this paper.
 
@@ -494,7 +488,6 @@ As much as we have implemented an effect API we would like to also reason about 
 One possible refinement is for handlers to not only take the instances of a given effect, but also quotient them to enforce that algebraic laws hold \cite{algtheorieshit}. This would force us to provide correctness proofs whenever mapping out of a particular effect and ensure that laws used to reason locally are enforced by handlers.
 We would like to explore how to use category theoretic constructions relating initial algebras to quotient types, to encode the relationship between free algebras and their handlers.
 This would involve proving that our construction is the free algebra with respect to the algebraic signature of MonadFail laws and then relating the quotiented variants to interpretations via initial constructions.
-\dnote{add citations}
 
 \bibliography{references}
 
