@@ -347,7 +347,25 @@ then instantiating it with a Left Kan extension, which gives us the functor for 
 For an implementation, these two steps
 tend to be fused together and instead of requiring the left Kan
 extension argument is instantiated with the type.
-\dnote{show it and explain more - need to restructure as we show it quite a bit further}
+
+\begin{haskell}
+	data Free (F : * -> *) A where
+		Pure : A -> Free F A
+		Impure : F (Free F A) -> Free F A
+\end{haskell}
+%
+
+The above Free monad gives us a conceptual way to encode operations of monads as simply remembering what happenned.
+
+Then we instatiate F with Left kan extension G, which gives us functor for any G, thus getting a monad for any G.
+
+\begin{haskell}
+	data Lan (F : * -> *) A where
+		FMap : (B -> A) -> F B -> Lan F A
+\end{haskell}
+%
+
+This construction remembers is a functor, which when mapping just remembers the arguments and accumulates functions, which were mapped.
 
 We would like to do these conceptually separately for formalization, but we run into a snag, Free monad is not strictly positive and as such can not be consistently implemeted in Agda. The instantiation of Free with the left Kan extension is strictly positive as such we just use the instantiation directly.
 
@@ -365,23 +383,7 @@ It then looks to elevate the requirement of functoriality by taking a generic co
 
 We show our construction, step-by-step. Our construction is adapted from the work of Kyseliov \cite{freerm} and traces back to using free monads to represent uninterpreted effects, the idea is that Free monad imposes the minimum amount of constraints, while still being a monad, in other words the only laws that should hold for it are the monad laws, with rest of the operations being unconstrained.
 
-We start with the construction of a Free monad, which gives us a monad for any functor.
-\begin{haskell}
-	data Free (F : * -> *) A where
-		Pure : A -> Free F A
-		Impure : F (Free F A) -> Free F A
-\end{haskell}
-%
-
-Then we instatiate F with Left kan extension G, which gives us functor for any G, thus getting a monad for any G.
-
-\begin{haskell}
-	data Lan (F : * -> *) A where
-		FMap : (B -> A) -> F B -> Lan F A
-\end{haskell}
-%
-
-Now the instantiation ends up giving us the following
+We start with the construction of a Free monad and Left Kan extension as above and instantiate Free with the Left Kan extesion, this yields the following.
 
 \begin{haskell}
 	data EffP (F : * -> *) A where
@@ -421,7 +423,7 @@ Agda are proof-relevant this at the same time acts as an index.
 \end{haskell}
 \dnote{Change to agda env}
 Our construction changes the typeclass resolution constraint of Effect in Haskell to a proof that F occurs in the effect list.
-We further refine this to provide names to every effect in the list
+We would like to further refine this to provide names to every effect in the list
 and thus being able to refer to each effect by a unique name, instead
 of by its type.
 
