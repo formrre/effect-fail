@@ -80,11 +80,14 @@ provide ways to write programs causing effects which are treated
 abstractly initially but which are given concrete implementations
 afterwards using \emph{handlers} (akin to raising an exception and
 later handling it).
-\tnote{Explain what is meant by ``Effect API''; example: exceptions
-  catch-throw and generalising that form of handling}
+This generalizes to general effects they provide a way to
+not only handle general exceptions, but to also remember some state between handling different operations a handler is responsible for.
+This allows implementing stateful computation for example, we capture the current state and next effect's handling will be aware of it.
+Thus an effect API provides a way to send effects and handle them, where send corresponds to throwing and handle to catching an exception.
 
 \tnote{mention modular monadic semantics}
 
+\subsetion{Problem statement}
 % jump from context/techniques to the problem
 Whilst algeraic effects are growing in maturity as a technique, there
 still exist some pain points with regards their practical use when
@@ -376,6 +379,7 @@ Then we instatiate F with Left kan extension G, which gives us functor for any G
 	data Lan (F : * -> *) A where
 		FMap : (B -> A) -> F B -> Lan F A
 \end{haskell}
+%
 
 Now the instantiation ends up giving us the following
 
@@ -384,6 +388,7 @@ Now the instantiation ends up giving us the following
 		Pure : A -> EffP F A
 		Impure : (B -> EffP F A) -> F B -> EffP F A
 \end{haskell}
+%
 
 We then then refine it to hold any \haskin{E} from within a type-level list \haskin{F}.
 \begin{haskell}
@@ -391,6 +396,8 @@ We then then refine it to hold any \haskin{E} from within a type-level list \has
               Pure : A -> Eff F A
               Impure : (Member F E) => (B -> Eff F A) -> E B -> Eff F A
 \end{haskell}
+%
+
 Being in type-level list
 is then enforced through type class constraints.
 
