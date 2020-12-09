@@ -321,6 +321,7 @@ this sends a new effect inside a monad
 handle : Effect effs a -> (a -> Effect effs2 b) -> (forall eff. eff ->
 Effect effs2 b) -> Effect effs2 b
 \end{agda}
+\dnote{Don't we want to delete an effect here once it is handled?}
 
 interprets one effect set inside another effect set
 
@@ -459,6 +460,7 @@ The proof has been mechanised in Agda.
 This gives a compositional notion of binding and purity.
 
 \section{Effect API}
+\dnote{already appears earlier}
 
 Effect API consists of 2 pieces handling and sending an effect, we run
 into an issue with Handling though, when attempting to handle an
