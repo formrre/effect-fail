@@ -48,12 +48,17 @@
 
 \bibliographystyle{plain}
 
+
 \begin{document}
 
 \maketitle
 
+
 \begin{abstract}
-	TODO
+	When specifying semantics of programming languages, there are many interacting operations be it state, exceptions or environment. In literature these tend to be modelled as monads and combined by using monad transformers.
+	In recent years there has been rise in interest in a more modular, as monad transformers are very sensitive to their ordering, called algebraic effects.
+	We identify a gap in effect literature in handling partial pattern matching, which is covered by transformers, but incompatible with current approaches to effects.
+	We present our formalization of algebraic effects in Agda combined with the ability to have partial patterns.
 \end{abstract}
 
 \section{Introduction}
@@ -68,8 +73,7 @@ effects is the desire to allow the management of side effects
 to be \emph{extensible}.
 
 Monad transformers start with an encoding and only afterwards attempt to provide the necessary operations. Effects do the reverse we firt think in terms of operation and equations, which the
-y should satisfy and only provide implementation afterwards. An advantage of it is that the interpretation does not change structure of already written code, while this tends to happen when adding new oper
-ations using transformers. \cite{exteff}
+y should satisfy and only provide implementation afterwards. An advantage of it is that the interpretation does not change structure of already written code, while this tends to happen when adding new operations using transformers. \cite{exteff}
 
 Algebraic effects provide a modular and lower overhead construction to
 flexibly add new operations to a monad, compared to a monad
@@ -276,7 +280,7 @@ entire computation fails--subsequent sequentially composed computing
 \dnote{TODO:
   integrate references and context
   \cite{gibbons2011just},\cite{malakhovski2018exceptionally},
-\cite{monadfailproposal}} SCitations to its use in the literature and discuss a bit what
+\cite{monadfailproposal} SCitations to its use in the literature and discuss a bit what
   has been said about it there.}
 
 Thus, from the view of monads as monoids (in the category of
@@ -401,6 +405,7 @@ is then enforced through type class constraints.
 
 \subsection{Our construction in Agda}
 
+We have formalized our constructions in Agda \cite{githubefffail}.
 We are working in dependently typed setting without type classes and
 as such we need to do multiple tweaks. Without some notion of
 positive and negative occurences,
@@ -411,12 +416,14 @@ our effect monad by tweaking the Haskell construction slightly and
 instead of providing an index to type-level list, we take a proof of
 contained effect's membership in this list. As proofs of membership in
 Agda are proof-relevant this at the same time acts as an index.
-\begin{haskell}
+\begin{agda}
 	data Effect (E : List (Set -> Set)) (A : Set) : Set1 where
 	  Pure : A -> Effect E A
-          Impure : {F : Set} F X -> (F in E) -> (X -> Effect E A) -> Effect E A
-\end{haskell}
-\dnote{Change to agda env nonref}
+	  Impure : {F : Set} F X
+	     -> (F in E)
+	     -> (X -> Effect E A)
+	     -> Effect E A
+\end{agda}
 Our construction changes the typeclass resolution constraint of Effect in Haskell to a proof that F occurs in the effect list.
 We would like to further refine this to provide names to every effect in the list
 and thus being able to refer to each effect by a unique name, instead
@@ -489,6 +496,6 @@ One possible refinement is for handlers to not only take the instances of a give
 We would like to explore how to use category theoretic constructions relating initial algebras to quotient types, to encode the relationship between free algebras and their handlers.
 This would involve proving that our construction is the free algebra with respect to the algebraic signature of MonadFail laws and then relating the quotiented variants to interpretations via initial constructions.
 
-\bibliography{references}
+\bibliography{main}
 
 \end{document}
