@@ -55,9 +55,14 @@
 
 
 \begin{abstract}
-	When specifying semantics of programming languages, there are many interacting operations be it state, exceptions or environment. In literature these tend to be modelled as monads and combined by using monad transformers.
-	In recent years there has been rise in interest in a more modular, as monad transformers are very sensitive to their ordering, called algebraic effects.
-	We identify a gap in effect literature in handling partial pattern matching, which is covered by transformers, but incompatible with current approaches to effects.
+	When specifying semantics of programming languages, there are
+        many interacting operations be it state, exceptions or
+        environment. In the literature these tend to be modelled as monads and combined by using monad transformers.
+	In recent years there has been rise in interest in a more
+        modular approach, as monad transformers are very sensitive to their ordering, called algebraic effects.
+	We identify a gap in the algebraic effects literature in handling partial
+        pattern matching, which is covered by transformers, but
+        incompatible with current approaches to algebraic effects.
 	We present our formalization of algebraic effects in Agda combined with the ability to have partial patterns.
 \end{abstract}
 
@@ -91,7 +96,7 @@ later handling it).
 This generalizes to general effects: effect handlers provide a way to
 not only handle general exceptions, but to also remember some state between handling different operations a handler is responsible for.
 For example, this allows implementing stateful computation, which replies to a get effect by returning the last put effects input.
-Algebraic effect handlers conform to a standard interface, which we call the 'effect API', comprising the use of an effectful operation (called a 'send', akin to throw for exceptions) and a way to interpret, or 'handle', that operation (akin to catch for exceptions). We define later in more precise terms the form of the effect API, which are given in a generic way for any operation.
+Algebraic effect handlers conform to a standard interface, which we call the `effect API', comprising the use of an effectful operation (called a `send', akin to throw for exceptions) and a way to interpret, or `handle', that operation (akin to catch for exceptions). We define later in more precise terms the form of the effect API, which are given in a generic way for any operation.
 Thus an effect API provides a way to `send' effects and `handle' them, where `send' corresponds to throwing and `handle' to catching an exception. It also provides a way to extract the final value once we have handled all effects.
 
 One of our larger aims is to explore how to emulate modular monadic semantics \cite{Schrijvers}, which provides composable way to combine language feature with monadic semantics approach, which allows expressing semantics in terms of operations provided by transformers. We hope this gives a good start towards managing complexities, which arise with pattern matching and algebraic effects.
@@ -153,7 +158,7 @@ We name this approach \textit{EffectFail} since it combines the idea
 of a free monad for capturing algebraic effects with the
 \texttt{MonadFail} pattern of Haskell.
 
-In Section 2, we discuss the background of our work
+In Section 2, we discuss the background of our work.
 In Section 3, we discuss our construction of effect monads and prove that it is a monad and a graded monad.
 In Section 3, we provide the implementation of the Effect API for this monad.
 In Section 4, we construct the \emph{EffectFail} interface, showing
@@ -260,7 +265,7 @@ desugars into,
 %
 
 Here x is selected as not to conflict with any user-defined variables. Not only does this desugaring require monadic bind, but also a new operation fail.
-This is captured in the Haskell type class MonadFail, which adds this
+This is captured in the Haskell type class \haskin{MonadFail}, which adds this
 operation.
 
 The type of \haskin{fail} in Haskell is $String \rightarrow m\:a$ for some monad
@@ -311,26 +316,27 @@ Section~\ref{sec:future-work})
 Effect API consists of 2 pieces handling and sending an effect, we run
 into an issue with Handling though, when attempting to handle an
 effect we have to do Set comparison, which is not available in Agda.
-API for effects consists of the following.
-
+The API for effects consists of the following:
+%
 \begin{agda}
 send : eff a -> Effect effs a -> Effect (insert eff effs) a
 \end{agda}
-
-this sends a new effect inside a monad
-
+%
+This operations `sends' a new effect inside a monad, and is used
+to represent the use of an effectful operator in code.
+%
 \begin{agda}
 handle : Effect effs a -> (a -> Effect effs2 b) -> (forall eff. eff ->
 Effect effs2 b) -> Effect effs2 b
 \end{agda}
-
-interprets one effect set inside another effect set
-
+%
+This opeartion interprets one effect set inside another effect set.
+%
 \begin{agda}
 escape : Effect [] a -> a
 \end{agda}
-
-this extracts a final value once all effects have been handled.
+%
+This operation extracts a final value once all effects have been handled.
 Send let's us write computation causing abstract effects,
 handle gives concrete interpretation to this abstraction and escape finishes once we have
 concretized interpreted all possible effects by handling.
