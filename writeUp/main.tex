@@ -10,7 +10,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
-\usepackage{agda}
+\usepackage{haskell}
 
 % amsthm math environemtsn
 
@@ -318,23 +318,23 @@ into an issue with Handling though, when attempting to handle an
 effect we have to do Set comparison, which is not available in Agda.
 The API for effects consists of the following:
 %
-\begin{agda}
+\begin{haskell}
 send : eff a -> Effect effs a -> Effect (insert eff effs) a
-\end{agda}
+\end{haskell}
 %
 This operations `sends' a new effect inside a monad, and is used
 to represent the use of an effectful operator in code.
 %
-\begin{agda}
+\begin{haskell}
 handle : Effect effs a -> (a -> Effect effs2 b) -> (forall eff. eff ->
 Effect effs2 b) -> Effect effs2 b
-\end{agda}
+\end{haskell}
 %
 This opeartion interprets one effect set inside another effect set.
 %
-\begin{agda}
+\begin{haskell}
 escape : Effect [] a -> a
-\end{agda}
+\end{haskell}
 %
 This operation extracts a final value once all effects have been handled.
 Send let's us write computation causing abstract effects,
@@ -422,14 +422,14 @@ our effect monad by tweaking the Haskell construction slightly and
 instead of providing an index to type-level list, we take a proof of
 contained effect's membership in this list. As proofs of membership in
 Agda are proof-relevant this at the same time acts as an index.
-\begin{agda}
+\begin{haskell}
 	data Effect (E : List (Set -> Set)) (A : Set) : Set1 where
 	  Pure : A -> Effect E A
 	  Impure : {F : Set} F X
 	     -> (F in E)
 	     -> (X -> Effect E A)
 	     -> Effect E A
-\end{agda}
+\end{haskell}
 Our construction changes the typeclass resolution constraint of Effect in Haskell to a proof that F occurs in the effect list.
 We would like to further refine this to provide names to every effect in the list
 and thus being able to refer to each effect by a unique name, instead
