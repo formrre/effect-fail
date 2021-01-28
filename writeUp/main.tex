@@ -78,7 +78,7 @@ effects is the desire to allow the management of side effects
 to be \emph{extensible}.
 
 Monad transformers start with an encoding and only afterwards attempt to provide the necessary operations. Effects do the reverse we firt think in terms of operation and equations, which the
-y should satisfy and only provide implementation afterwards. An advantage of it is that the interpretation does not change structure of already written code, while this tends to happen when adding new operations using transformers. \cite{exteff}
+y should satisfy and only provide implementation afterwards. An advantage of it is that the interpretation does not change structure of already written code, while this tends to happen when adding new operations using transformers. \cite{exteffold}
 
 Algebraic effects provide a modular and lower overhead construction to
 flexibly add new operations to a monad, compared to a monad
@@ -99,7 +99,7 @@ For example, this allows implementing stateful computation, which replies to a g
 Algebraic effect handlers conform to a standard interface, which we call the `effect API', comprising the use of an effectful operation (called a `send', akin to throw for exceptions) and a way to interpret, or `handle', that operation (akin to catch for exceptions). We define later in more precise terms the form of the effect API, which are given in a generic way for any operation.
 Thus an effect API provides a way to `send' effects and `handle' them, where `send' corresponds to throwing and `handle' to catching an exception. It also provides a way to extract the final value once we have handled all effects.
 
-One of our larger aims is to explore how to emulate modular monadic semantics \cite{Schrijvers}, which provides composable way to combine language feature with monadic semantics approach, which allows expressing semantics in terms of operations provided by transformers. We hope this gives a good start towards managing complexities, which arise with pattern matching and algebraic effects.
+One of our larger aims is to explore how to emulate modular monadic semantics \cite{3MT}, which provides composable way to combine language feature with monadic semantics approach, which allows expressing semantics in terms of operations provided by transformers. We hope this gives a good start towards managing complexities, which arise with pattern matching and algebraic effects.
 
 \paragraph{Problem statement}
 % jump from context/techniques to the problem
@@ -411,7 +411,7 @@ is then enforced through type class constraints.
 
 \subsection{Our construction in Agda}
 
-We have formalized our constructions in Agda \cite{githubefffail}.
+We have formalized our constructions in Agda \cite{repo}.
 We are working in dependently typed setting without type classes and
 as such we need to do multiple tweaks. Without some notion of
 positive and negative occurences,

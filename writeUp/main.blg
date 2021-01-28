@@ -1,0 +1,53 @@
+This is BibTeX, Version 0.99d (TeX Live 2017/Debian)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: main.aux
+The style file: plain.bst
+Case mismatch error between cite keys kiselyov and Kiselyov
+---line 20 of file main.aux
+ : \citation{kiselyov
+ :                   }
+I'm skipping whatever remains of this command
+Database file #1: main.bib
+Warning--empty journal in algtheorieshit
+You've used 15 entries,
+            2118 wiz_defined-function locations,
+            592 strings with 6431 characters,
+and the built_in function-call counts, 5080 in all, are:
+= -- 511
+> -- 210
+< -- 5
++ -- 81
+- -- 65
+* -- 302
+:= -- 818
+add.period$ -- 50
+call.type$ -- 15
+change.case$ -- 74
+chr.to.int$ -- 0
+cite$ -- 16
+duplicate$ -- 220
+empty$ -- 415
+format.name$ -- 65
+if$ -- 1115
+int.to.chr$ -- 0
+int.to.str$ -- 15
+missing$ -- 12
+newline$ -- 78
+num.names$ -- 36
+pop$ -- 84
+preamble$ -- 1
+purify$ -- 59
+quote$ -- 0
+skip$ -- 187
+stack$ -- 0
+substring$ -- 274
+swap$ -- 72
+text.length$ -- 5
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 60
+warning$ -- 1
+while$ -- 49
+width$ -- 17
+write$ -- 168
+(There was 1 error message)
