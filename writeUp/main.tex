@@ -10,7 +10,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
-\usepackage{haskell}
+
 
 % amsthm math environemtsn
 
@@ -376,7 +376,7 @@ When mapping this construction just remembers the arguments and accumulates func
 
 We would like to do these conceptually separately for formalization, but we run into a snag, Free monad is not strictly positive and as such can not be consistently implemeted in Agda. The instantiation of Free with the left Kan extension is strictly positive as such we just use the instantiation directly.
 
-While previous approaches \cite{kiselyov} aim mostly for efficiency of implementation we aim for ease of proofs. As such we take intermediate point in the design space of this paper.
+While previous approaches \cite{Kiselyov} aim mostly for efficiency of implementation we aim for ease of proofs. As such we take intermediate point in the design space of this paper.
 
 We just require that
 it is instantiated with a type, which occurs within a type-level list
