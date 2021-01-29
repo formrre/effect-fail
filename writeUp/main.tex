@@ -3,8 +3,6 @@
 \usepackage[utf8]{inputenc}
 \usepackage{listings}
 \usepackage{xcolor}
-\usepackage{soul}
-\usepackage{sidenotes}
 \usepackage{url}
 
 \usepackage{amsmath}
@@ -282,11 +280,6 @@ In haskell it is assumed due to the expected semantics of pattern matching that 
 i.e., once a failure has occured, as given by \haskin{mfail}, then the
 entire computation fails--subsequent sequentially composed computing
 (e.g., \haskin{f} above) are ignored.
-\dnote{TODO:
-  integrate references and context
-  \cite{gibbons2011just},\cite{malakhovski2018exceptionally},
-\cite{monadfailproposal} SCitations to its use in the literature and discuss a bit what
-  has been said about it there.}
 
 Thus, from the view of monads as monoids (in the category of
 endofunctors), \haskin{mfail} identifies an element of the monoid

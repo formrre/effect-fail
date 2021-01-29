@@ -5,24 +5,10 @@ Henning Basold, Niels van~der Weide, and Niccolò Veltri.
 \newblock Free algebraic theories as higher inductive types.
 \newblock 2019.
 
-\bibitem{monadfailproposal}
-Herbert Valerio~Riedel David~Luposchainsky, Franz~Thoma.
-\newblock monad fail.
-\newblock
-  \url{https://gitlab.haskell.org/haskell/prime/-/wikis/libraries/proposals/monad-fail}.
-
 \bibitem{3MT}
 Benjamin Delaware, Steven Keuchel, Tom Schrijvers, and Bruno~C.d.S. Oliveira.
 \newblock Modular monadic meta-theory.
 \newblock {\em SIGPLAN Not.}, 48(9):319–330, September 2013.
-
-\bibitem{gibbons2011just}
-Jeremy Gibbons and Ralf Hinze.
-\newblock Just do it: simple monadic equational reasoning.
-\newblock In Manuel M.~T. Chakravarty, Zhenjiang Hu, and Olivier Danvy,
-  editors, {\em Proceeding of the 16th {ACM} {SIGPLAN} international conference
-  on Functional Programming, {ICFP} 2011, Tokyo, Japan, September 19-21, 2011},
-  pages 2--14. {ACM}, 2011.
 
 \bibitem{jones2003haskell}
 Simon L.~Peyton Jones.
@@ -68,11 +54,6 @@ Sheng Liang, Paul Hudak, and Mark~P. Jones.
   POPL'95: 22nd {ACM} {SIGPLAN-SIGACT} Symposium on Principles of Programming
   Languages, San Francisco, California, USA, January 23-25, 1995}, pages
   333--343. {ACM} Press, 1995.
-
-\bibitem{malakhovski2018exceptionally}
-Jan Malakhovski.
-\newblock Exceptionally monadic error handling.
-\newblock {\em CoRR}, abs/1810.13430, 2018.
 
 \bibitem{moggi1991notions}
 Eugenio Moggi.
