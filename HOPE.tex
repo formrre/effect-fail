@@ -1,0 +1,34 @@
+\documentclass{article}
+
+\begin{document}
+\title{HOPE draft}
+
+
+\section{Motivation}
+We show how to combine the approaches to algebraic effects, together with failures of pattern matching.
+We do our development in 3 phases, we show that 
+
+Effect monad ala Kiselyov satisfies the monad laws.
+Effect monad ala Kiselyov satisfies the graded monad laws.
+
+\section{Background}
+
+\subsection{Algebraic effects as monads and graded monads}
+
+\subsection{Handling effects}
+
+\section{Our results}
+
+We have produced an intermediate construction between the variations of Kiselyov in Agda.
+TODO add short explanation of similarities and differences
+
+\section{Future directions}
+As much we have constructed the monad in agda and verified the various laws. For practical purposes there needs to be more than just a monadic structure.
+We want to reason about the local code using the eponymous algebraic laws. We would like to attach equations the handlers should satisfy to the monad.
+There are multiple interesting directions to take this in. 
+We would also like to use Quotient inductive types to provide a view of operations for reasoning and correct-by-construction definition of handlers,
+which abstracts away from the concrete choices when reasoning, yet forces us to prove satisfiability of the algebriac equations by some handler.
+To extend the proofs from our current work to the quotient case we need to prove a type-theoretic formulation of algebraic freedom \cite{ncatlab}.
+To verify that all the constructions preserve all equations. We note that by theorem 3.1 and 3.2 \cite{ncatlab} this result should follow in Homotopy type theory.
+The reason for this being that we need the ambient category to be locally small and complete with homotopy type theory we should be able to get all colimits.
+\end{document}
