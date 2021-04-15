@@ -20,7 +20,21 @@ Effect monad ala Kiselyov satisfies the graded monad laws.
 \section{Our results}
 
 We have produced an intermediate construction between the variations of Kiselyov in Agda.
+This construction is inbetween the construction the monads Eff and Freer as presented in their work. This is due to our focus on reasoning about monadic laws and
+ease of construction within a dependently-typed framework instead of performance.
+We further describe how to extend these with failing pattern matching, for simpler description, we present our code in stages and explain how to generically add 
 TODO add short explanation of similarities and differences
+
+\section{Effect monad construction}
+
+We review the construction of Effect monad, to illustrate what issues pop up, while trying to make this into a admissible construction in Agda.
+In haskell, these constructions can be done easily using the general datatypes, but they included datatype level fixed points in full.
+In agda we can take 2 possible views of these constructions.
+
+\section{Graded monad proofs}
+
+We grade monads to allow to combining the effect sets and thus being able to refer to only subcomputations in the programs and proofs.
+We do this by describing a reindexing operation, which combines sets and allows us to refer to distinct effects with same names.
 
 \section{Future directions}
 As much we have constructed the monad in agda and verified the various laws. For practical purposes there needs to be more than just a monadic structure.
@@ -31,4 +45,7 @@ which abstracts away from the concrete choices when reasoning, yet forces us to 
 To extend the proofs from our current work to the quotient case we need to prove a type-theoretic formulation of algebraic freedom \cite{ncatlab}.
 To verify that all the constructions preserve all equations. We note that by theorem 3.1 and 3.2 \cite{ncatlab} this result should follow in Homotopy type theory.
 The reason for this being that we need the ambient category to be locally small and complete with homotopy type theory we should be able to get all colimits.
+
+Another direction of future research is to construct an isomorphism between continuations and the fast type-aligned queues of Kiselyov,
+thus providing a more efficient implementation of effects without the overheads to reasoning this entails as we focus on semantic constructions instead of executable code, this is not our primary concern.
 \end{document}
