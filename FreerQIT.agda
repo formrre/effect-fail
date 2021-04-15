@@ -5,7 +5,7 @@ module FreerQIT where
 open import Cubical.Foundations.Everything
 open import Agda.Primitive
 
-{- 
+{-
     Note: doing Lan (Freer f a) behaves antimodularly
     let's see why
 -}
@@ -64,7 +64,7 @@ lanfmap x (FMap X a b) = FMap X a λ y → x (b y)
 {- factoring out lan fmap is obviously terminating by isomorphism to eff3bind -}
 eff3bindalt : {E : Set -> Set} {A B : Set} -> Eff3 E A -> (A -> Eff3 E B) -> Eff3 E B
 eff3bindalt (Pure3 x) k = k x
-eff3bindalt (Impure3 X) k = Impure3 (lanfmap (λ x → eff3bindalt x k) X) 
+eff3bindalt (Impure3 X) k = Impure3 (lanfmap (λ x → eff3bindalt x k) X)
 
 
 eqv1 : {E : Set -> Set} {A B : Set} -> (x : Eff3 E A) -> (y : _) -> eff3bind {E} {A} {B} x y ≡ eff3bindalt {E} {A} {B} x y
@@ -125,8 +125,11 @@ Monad.leftId (MndEff3 E) x m = refl
 Monad.assocB (MndEff3 E) = Eff3assoc
 
 {- TODO definition of algebra for EndoFunctor -}
-EndoAlg : {l1 l2 : _} {F : Set l1 → Set l2} -> EndoFunctor F → Set {!   !}
-EndoAlg EF = {!   !}
+EndoAlg : {l1 l2 : _} {F : Set l1 → Set l2} -> EndoFunctor F → Set (ℓ-max (ℓ-suc l1) l2)
+EndoAlg {l1} {_} {F} EF = Σ (Set l1) (\U -> F U -> U)
+
+EndoAlgMorph : {l1 l2 : _} {F : Set l1 → Set l2} -> (f : EndoFunctor F) → EndoAlg f -> EndoAlg f -> Set {!!}
+EndoAlgMorph {l1} {_} {F} EF (X , f) (Y , g) = {!!}
 
 {- TODO definition of algebra for a monad -}
 MndAlg : {l1 l2 : _} {T : Set l1 → Set l2} -> Monad T → Set {!   !}
