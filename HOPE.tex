@@ -13,9 +13,23 @@ Effect monad ala Kiselyov satisfies the graded monad laws.
 
 \section{Background}
 
+\section{Algebraic effects}
+
+
+
 \subsection{Algebraic effects as monads and graded monads}
 
 \subsection{Handling effects}
+
+Handlers of effects can be thought of as a generalization of exception handlers, which provide richer context
+and are constrained to respect a certain set of equations.
+\subsection{MaybeT and MonadFail}
+
+MaybeT is the monad transformer, i.e. a transformation ${T A : Set} -> Monad T -> Maybe T A -> Monad S$.
+$MaybeT m x = m (Maybe x)$
+We can think of MaybeT as an extension by an arbitrary, single option failure case. especially in the strucutre of
+a Free monad as Monad is Pure and fixed point of a functor with this identity case.
+
 
 \section{Our results}
 
@@ -35,7 +49,11 @@ In agda we can take 2 possible views of these constructions.
 
 We grade monads to allow to combining the effect sets and thus being able to refer to only subcomputations in the programs and proofs.
 We do this by describing a reindexing operation, which combines sets and allows us to refer to distinct effects with same names.
+We need a way to reindex the eeffect set to embed the left effect set into an ordered monoid.
 
+\section{MaybeT and MaybeFail}
+Modified handling we state a different form of initiality as much as effects are inspired by initiality, we provide a type-theoretic
+for our definition, to provide handling of effectfail, we interpret the results and embed them into Maybe and propagate the underlying failure.
 \section{Future directions}
 As much we have constructed the monad in agda and verified the various laws. For practical purposes there needs to be more than just a monadic structure.
 We want to reason about the local code using the eponymous algebraic laws. We would like to attach equations the handlers should satisfy to the monad.
