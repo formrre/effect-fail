@@ -1,111 +1,29 @@
-%-----------------------------------------------------------------------------
-%
-%               Template for sigplanconf LaTeX Class
-%
-% Name:         sigplanconf-template.tex
-%
-% Purpose:      A template for sigplanconf.cls, which is a LaTeX 2e class
-%               file for SIGPLAN conference proceedings.
-%
-% Guide:        Refer to "Author's Guide to the ACM SIGPLAN Class,"
-%               sigplanconf-guide.pdf
-%
-% Author:       Paul C. Anagnostopoulos
-%               Windfall Software
-%               978 371-2316
-%               paul@windfall.com
-%
-% Created:      15 February 2005
-%
-%-----------------------------------------------------------------------------
-
-
-\documentclass[preprint]{sigplanconf}
-
-% The following \documentclass options may be useful:
-
-% preprint       Remove this option only once the paper is in final form.
-%  9pt           Set paper in  9-point type (instead of default 10-point)
-% 11pt           Set paper in 11-point type (instead of default 10-point).
-% numbers        Produce numeric citations with natbib (instead of default author/year).
-% authorversion  Prepare an author version, with appropriate copyright-space text.
+\documentclass[preprint,sigplan]{acmart}
 
 \usepackage{amsmath}
 
 \newcommand{\cL}{{\cal L}}
 
+
+%% Bibliography style
+\bibliographystyle{ACM-Reference-Format}
+%% Citation style
+%% Note: author/year citations are required for papers published as an
+%% issue of PACMPL.
+\citestyle{acmauthoryear}   %% For author/year citations
+
+\title{Title Text}
+
+\author{}
+
+
 \begin{document}
-
-\special{papersize=8.5in,11in}
-\setlength{\pdfpageheight}{\paperheight}
-\setlength{\pdfpagewidth}{\paperwidth}
-
-\conferenceinfo{CONF'yy}{Month d--d, 20yy, City, ST, Country}
-\copyrightyear{20yy}
-\copyrightdata{978-1-nnnn-nnnn-n/yy/mm}\reprintprice{\$15.00}
-\copyrightdoi{nnnnnnn.nnnnnnn}
-
-% For compatibility with auto-generated ACM eRights management
-% instructions, the following alternate commands are also supported.
-%\CopyrightYear{2016}
-%\conferenceinfo{CONF'yy,}{Month d--d, 20yy, City, ST, Country}
-%\isbn{978-1-nnnn-nnnn-n/yy/mm}\acmPrice{\$15.00}
-%\doi{http://dx.doi.org/10.1145/nnnnnnn.nnnnnnn}
-
-% Uncomment the publication rights used.
-%\setcopyright{acmcopyright}
-\setcopyright{acmlicensed}  % default
-%\setcopyright{rightsretained}
-
-\titlebanner{banner above paper title}        % These are ignored unless
-\preprintfooter{short description of paper}   % 'preprint' option specified.
-
-\title{Title Text\titlenote{with optional title note}}
-\subtitle{Subtitle Text, if any\titlenote{with optional subtitle note}}
-
-\authorinfo{Name1\thanks{with optional author note}}
-           {Affiliation1}
-           {Email1}
-\authorinfo{Name2 \and Name3\thanks{with optional author note}}
-           {Affiliation2/3}
-           {Email2/3}
-
-\maketitle
 
 \begin{abstract}
 This is the text of the abstract.
 \end{abstract}
 
-% 2012 ACM Computing Classification System (CSS) concepts
-% Generate at 'http://dl.acm.org/ccs/ccs.cfm'.
-\begin{CCSXML}
-<ccs2012>
-<concept>
-<concept_id>10011007.10011006.10011008</concept_id>
-<concept_desc>Software and its engineering~General programming languages</concept_desc>
-<concept_significance>500</concept_significance>
-</concept>
-<concept>
-<concept_id>10003752.10010124.10010138.10010143</concept_id>
-<concept_desc>Theory of computation~Program analysis</concept_desc>
-<concept_significance>300</concept_significance>
-</concept>
-</ccs2012>
-\end{CCSXML}
-
-\ccsdesc[500]{Software and its engineering~General programming languages}
-\ccsdesc[300]{Theory of computation~Program analysis}
-% end generated code
-
-% Legacy 1998 ACM Computing Classification System categories are also
-% supported, but not recommended.
-%\category{CR-number}{subcategory}{third-level}[fourth-level]
-%\category{D.3.0}{Programming Languages}{General}
-%\category{F.3.2}{Logics and Meanings of Programs}{Semantics of Programming Languages}[Program analysis]
-
-\keywords
-keyword1, keyword2
-
+\maketitle
 
 \section{Motivation}
 Functional programming presents an opportunity to reconsider the role
@@ -166,7 +84,7 @@ a Free monad as Monad is Pure and fixed point of a functor with this identity ca
 We have produced an intermediate construction between the variations of Kiselyov in Agda.
 This construction is inbetween the construction the monads Eff and Freer as presented in their work. This is due to our focus on reasoning about monadic laws and
 ease of construction within a dependently-typed framework instead of performance.
-We further describe how to extend these with failing pattern matching, for simpler description, we present our code in stages and explain how to generically add 
+We further describe how to extend these with failing pattern matching, for simpler description, we present our code in stages and explain how to generically add
 TODO add short explanation of similarities and differences
 
 \section{Effect monad construction}
@@ -188,7 +106,7 @@ for our definition, to provide handling of effectfail, we interpret the results 
 \section{Future directions}
 As much we have constructed the monad in agda and verified the various laws. For practical purposes there needs to be more than just a monadic structure.
 We want to reason about the local code using the eponymous algebraic laws. We would like to attach equations the handlers should satisfy to the monad.
-There are multiple interesting directions to take this in. 
+There are multiple interesting directions to take this in.
 We would also like to use Quotient inductive types to provide a view of operations for reasoning and correct-by-construction definition of handlers,
 which abstracts away from the concrete choices when reasoning, yet forces us to prove satisfiability of the algebriac equations by some handler.
 To extend the proofs from our current work to the quotient case we need to prove a type-theoretic formulation of algebraic freedom \cite{ncatlab}.
@@ -203,23 +121,8 @@ thus providing a more efficient implementation of effects without the overheads 
 
 This is the text of the appendix, if you need one.
 
-\acks
-
-Acknowledgments, if needed.
-
 % The 'abbrvnat' bibliography style is recommended.
 
-\bibliographystyle{abbrvnat}
-
-% The bibliography should be embedded for final submission.
-
-\begin{thebibliography}{}
-\softraggedright
-
-\bibitem[Smith et~al.(2009)Smith, Jones]{smith02}
-P. Q. Smith, and X. Y. Jones. ...reference text...
-
-\end{thebibliography}
-
+\bibliography{references}
 
 \end{document}
