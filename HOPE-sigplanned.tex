@@ -5,6 +5,9 @@
 \newcommand{\cL}{{\cal L}}
 
 
+\newcommand{\dnote}[1]{\textcolor{purple}{Dom: #1}}
+\newcommand{\tnote}[1]{\textcolor{blue}{Timo: #1}}
+
 %% Bibliography style
 \bibliographystyle{ACM-Reference-Format}
 %% Citation style
@@ -43,6 +46,30 @@ This is the text of the abstract.
 \maketitle
 
 \section{Motivation}
+
+Consider the following situation.  A compile writer is producing some
+semantics-preserving translations between intermediate languages. At
+some point in this transformation pipeline, information is lost (e.g.,
+typing). This necessitates that the compiled code has some error
+cases, for example:
+%
+\begin{verbatim}
+pseudo code
+\end{verbatim}
+%
+This failure is intentionally non-recoverable. In Haskell, this
+idea is captured by the \texttt{MonadFail} type class which is
+used to desugar the \emph{do}-notation in the case of refutable
+patterns. For example
+
+\dnote{Show translation}
+
+In this work, we seek to capture the same idea but in the
+setting of algebraic effects, which already have various advantages
+over the monadic approach.
+
+
+
 Functional programming presents an opportunity to reconsider the role
 of side effects in programs. There have been various techniques
 proposed for integrating effects smoothly into functional code.
