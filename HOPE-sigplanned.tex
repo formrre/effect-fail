@@ -4,6 +4,8 @@
 
 \newcommand{\cL}{{\cal L}}
 
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
 
 \newcommand{\dnote}[1]{\textcolor{purple}{Dom: #1}}
 \newcommand{\tnote}[1]{\textcolor{blue}{Timo: #1}}
@@ -38,6 +40,8 @@
 }
 
 \begin{document}
+
+\pagestyle{plain} % removes running headers
 
 \begin{abstract}
 This is the text of the abstract.
