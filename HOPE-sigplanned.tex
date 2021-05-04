@@ -33,6 +33,7 @@
 
 \author{Dominic Orchard}
 
+
 \affiliation{
 %  \department{School of Computing}      %% \department is recommended
   \institution{University of Kent} %% \institution is required
@@ -44,11 +45,27 @@
 \pagestyle{plain} % removes running headers
 
 \begin{abstract}
-This is the text of the abstract.
+Algebraic effects are one of the possible approaches to tackle modularity issues arising in applications where normally we would use monad transformers.
+One such area is programming language semantics, we show that the standard incarnation of effects does not satisfy some requirements needed to build compact,
+non-repetitive semantics, when the language does not have a type system such as in cases of intermediate languages in compilers.
+We show how to use a single MaybeT transformer to achieve this, we also explore the graded structure of effect monads.
+
 \end{abstract}
 
 \maketitle
 
+% clearly seperate motivation
+% failure and effects not satisfying MonadFail laws
+% our construction, refer to Kiselyov
+%    talk about MaybeT
+%    gives the expected signature for handling
+%    note this isnt exactly initiality
+%
+% illustrate the differences compared to Kiselyov's
+% grading proofs
+% short future work
+% cleanup cakeml
+% what matters first 2 pages can be longer
 \section{Motivation}
 
 Consider the following situation.  A compile writer is producing some
@@ -72,8 +89,6 @@ In this work, we seek to capture the same idea but in the
 setting of algebraic effects, which already have various advantages
 over the monadic approach.
 
-
-
 Functional programming presents an opportunity to reconsider the role
 of side effects in programs. There have been various techniques
 proposed for integrating effects smoothly into functional code.
@@ -93,6 +108,7 @@ In monad transformer frameworks we need a new type class instance for every
 combination of effects and this makes the implementation less
 flexible.
 
+% make clear our formalization verifies the laws but does not provide the syntactic do-solution
 Algebraic effects
 provide ways to write programs causing effects which are treated
 abstractly initially but which are given concrete implementations
@@ -104,14 +120,49 @@ For example, this allows implementing stateful computation, which replies to a g
 Algebraic effect handlers conform to a standard interface, which we call the `effect API', comprising the use of an effectful operation (called a `send', akin to throw for exceptions) and a way to interpret, or `handle', that operation (akin to catch for exceptions). We define later in more precise terms the form of the effect API, which are given in a generic way for any operation.
 Thus an effect API provides a way to `send' effects and `handle' them, where `send' corresponds to throwing and `handle' to catching an exception. It also provides a way to extract the final value once we have handled all effects.
 
-One of our larger aims is to explore how to emulate modular monadic semantics \cite{3MT}, which provides composable way to combine language feature with monadic semantics approach, which allows expressing semantics in terms of operations provided by transformers. We hope this gives a good start towards managing complexities, which arise with pattern matching and algebraic effects.
+One of our larger aims is to explore how to emulate modular monadic semantics \cite{3MT}, which provides composable way to combine language feature with monadic semantics approach,
+which allows expressing semantics in terms of operations provided by transformers.
+We hope this gives a good start towards managing complexities, which arise with pattern matching and algebraic effects.
 
+% flow of the ideas key properties basic structure
 
+% work in progress the correct variant initiality
+% normally the correct definition of handlers is defined in terms of initiality
+% we would like to define not only handling, but handling in terms of algebra preservation
+% we want maps to preserve equlities of presentations
+
+% merge
+% refer to constructions by reference
+% explain differences between Kiselyov's, McBride's constructions
+% ITrees, algebraic effects, McBride's Turing-completeness totally free
+% Pirog, Gibbons Coinductive Resumption
+% Plotkin Pretnar handling algebraic effects
+% handlers of algebraic effects
+% Grading should be a monoid after forgetting ordering
+% Forgetful functor Monad -> Endo
+% Forgetful functor Monad -> (ob(C),C)
+% Failure is expressed by transformer construction which allows us to add an operation fail : M A with extra cancellative law
+% failure is not initial as a forgetful functor (C,ob(C)) but with respect to MaybeT
+% Free monad cannot satisfy the equation X >>= fail = X by itself because it would violate freeness as we have imposed an extra equation
+% why not a failure with extra law, syntactic sugar
+% can we get the syntactic sugar from quotients without imposing the MaybeT construction, no because handling as initiality is not well-behaved in this case, we want to really propagate failure
+% further progress: algebraic freeness with HITs
+% Continuations are not algebraic, delimited continuations should be thus providing a good way to work with exceptions
+% Grading lifts through MaybeT, can we characterize other syntactic extensions of do-notation via transformers and laws, is there some generic quotient law for these cases
+% characterization should work for all monad transformers which purely change return type
+% 
+
+% running an effect can be done easily with an empty set because then the impure constructor can not hold any membership proof and thus is empty
+% 
 \section{Background}
 
 \section{Algebraic effects}
 
 Algebraic effects in theory consist of a signature of operations
+% signature consists of X, List (\a b : X -> a = b)
+% and equations
+% we do not impose any equations in our treatment of operations
+% we verify monad and monadfail laws
 
 \subsection{Algebraic effects as monads and graded monads}
 
@@ -139,13 +190,16 @@ TODO add short explanation of similarities and differences
 
 We review the construction of Effect monad, to illustrate what issues pop up, while trying to make this into a admissible construction in Agda.
 In haskell, these constructions can be done easily using the general datatypes, but they included datatype level fixed points in full.
-In agda we can take 2 possible views of these constructions.
+In agda we can take 2 possible views of these constructions. We could go through the containers and construct a fixed point of containers as in \cite{?}.
+Or we could fuse the left kan extension construction into the effect monad and observe that the result is strictly positive.
+This means we do not have to provide a container construction for the underlying work as in \cite{?}. This works by realizing that the instantiation of F in the recursion to Lan of an arbitrary datatype is strictly positive without a recourse to containers.
+We pick to do a halfway point between the constructions in Kyseliov, we do not use the optimized version, but we use the idea of effects should belong to a set.
 
 \section{Graded monad proofs}
 
 We grade monads to allow to combining the effect sets and thus being able to refer to only subcomputations in the programs and proofs.
 We do this by describing a reindexing operation, which combines sets and allows us to refer to distinct effects with same names.
-We need a way to reindex the eeffect set to embed the left effect set into an ordered monoid.
+We need a way to reindex the effect set to embed the left effect set into a list.
 
 \section{MaybeT and MaybeFail}
 We have to modify handling, we state a different form of initiality, as much as effects are inspired by initiality, we provide a type-theoretic
@@ -161,9 +215,9 @@ To extend the proofs from our current work to the quotient case we need to prove
 To verify that all the constructions preserve all equations. We note that by theorem 3.1 and 3.2 \cite{ncatlab} this result should follow in Homotopy type theory.
 The reason for this being that we need the ambient category to be locally small and complete with homotopy type theory we should be able to get all colimits.
 
-Another direction of future research is to construct an isomorphism between continuations and the fast type-aligned queues of Kiselyov,
+Another direction of future research is to construct an isomorphism between continuations and the fast type-aligned queues of Kiselyov, quotiented by their composition,
 thus providing a more efficient implementation of effects without the overheads to reasoning this entails as we focus on semantic constructions instead of executable code, this is not our primary concern.
-
+We would expect this to then transport by univalence, but as discussed in {unitransport} we would need also some form of representation independence coming from parametricity for this to be actually efficient.
 \appendix
 \section{Appendix Title}
 
