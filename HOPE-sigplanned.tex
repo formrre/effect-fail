@@ -236,11 +236,21 @@ In Haskell, if a \emph{do}-expression performs a pattern
 matching `bind' that may fail, then the monad being used
 must also have an instance of the \texttt{MonadFail} class:
 %
-\begin{Verbatim}[fontsize=\footnotesize]
+\begin{Verbatim}[fontsize=\small,xleftmargin=1cm]
 class MonadFail m where
   fail :: String -> m a
 \end{Verbatim}
 %
+where, for all monadic computations \texttt{x :: m a}:
+%
+{\small{
+\begin{equation*}
+\hspace{-10em}\texttt{fail $>$$>$$=$ x} \;\; \equiv \;\; \texttt{fail}
+\end{equation*}
+}}
+%
+i.e., failure is global and non-recoverable.
+
 \dnote{link with MaybeT}
 MaybeT is the monad transformer, i.e. a transformation ${T A : Set} -> Monad T -> Maybe T A -> Monad S$.
 $MaybeT m x = m (Maybe x)$
