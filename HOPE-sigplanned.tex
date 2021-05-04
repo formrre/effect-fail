@@ -205,6 +205,8 @@ We pick to do a halfway point between the constructions in Kyseliov, we do not u
 We grade monads to allow to combining the effect sets and thus being able to refer to only subcomputations in the programs and proofs.
 We do this by describing a reindexing operation, which combines sets and allows us to refer to distinct effects with same names.
 We need a way to reindex the effect set to embed the left effect set into a list.
+We note that the list of effects is itself a monoid and we grade by it. Graded unit, is the unit of our monad but for empty lists.
+To produce graded bind, we append the 2 lists of effects andcombine them.
 
 \section{Handling EffectFail}
 We have to modify handling, we state a different form of initiality, as much as effects are inspired by initiality, we provide a type-theoretic
@@ -212,6 +214,7 @@ motivation
 for our definition, to provide handling of effectfail, we interpret the results and embed them into Maybe and propagate the underlying failure.
 This should be correct not by some appeal to category theory as initiality is normally stated, but by appealing to the API we would expect from our system.
 We would excpect this API to propagate pattern matching failure. To run an effectfail we either want to extract the underlying result or propagate the failure of underlying Pure result.
+
 \section{Future directions}
 As much we have constructed the monad in agda and verified the various laws. For practical purposes there needs to be more than just a monadic structure.
 We want to reason about the local code using the eponymous algebraic laws. We would like to attach equations the handlers should satisfy to the monad.
