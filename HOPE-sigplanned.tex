@@ -1,6 +1,7 @@
 \documentclass[preprint,sigplan]{acmart}
 
 \usepackage{amsmath}
+\usepackage{fancyvrb}
 
 \newcommand{\cL}{{\cal L}}
 
@@ -70,9 +71,10 @@ We show how to use a single MaybeT transformer to achieve this, we also explore 
 
 Consider the following situation.  A compile writer is producing some
 semantics-preserving translations between intermediate languages. At
-some point in this transformation pipeline, information is lost (e.g.,
-typing). This necessitates that the compiled code has some error
-cases, for example:
+some point in this transformation pipeline, information is lost, e.g.,
+typing information is erased when converting to an untyped core
+lanugage or byte code.  This necessitates that the compiled code has
+some error handling cases, for example:
 %
 \begin{verbatim}
 pseudo code
@@ -86,43 +88,21 @@ patterns. For example
 \dnote{Show translation}
 
 In this work, we seek to capture the same idea but in the
-setting of algebraic effects, which already have various advantages
-over the monadic approach.
+setting of \emph{algebraic effects}.
 
-Functional programming presents an opportunity to reconsider the role
-of side effects in programs. There have been various techniques
-proposed for integrating effects smoothly into functional code.
-The predominant approaches are \emph{algebraic effects} and the
-\emph{monadic} approach. One of the motivations behind algebraic
-effects is the desire to allow the management of side effects
-to be \emph{extensible}.
-
-Monad transformers start with an encoding and only afterwards attempt to provide the necessary operations. Effects do the reverse we firt think in terms of operation and equations, which the
-y should satisfy and only provide implementation afterwards. An advantage of it is that the interpretation does not change structure of already written code, while this tends to happen when adding new operations using transformers. \cite{exteffold}
-
-Algebraic effects provide a modular and lower overhead construction to
-flexibly add new operations to a monad, compared to a monad
-transformer approach.
-%
-In monad transformer frameworks we need a new type class instance for every
+One aims of the algebraic-effects approach
+is to allow the management of side effects to be
+\emph{extensible}, considering first the necessary
+effectful operations and their laws, rather than focussing on the underlying
+semantic structure as is common in the \emph{monad}-first approach.
+\emph{Monad transformers} can provide some modularity to the monad-first
+approach, but this needs a new type class instance for every
 combination of effects and this makes the implementation less
 flexible.
+\dnote{This is a very Haskell answer... is there something better here.}
 
 % make clear our formalization verifies the laws but does not provide the syntactic do-solution
-Algebraic effects
-provide ways to write programs causing effects which are treated
-abstractly initially but which are given concrete implementations
-afterwards using \emph{handlers} (akin to raising an exception and
-later handling it).
-This generalizes to general effects: effect handlers provide a way to
-not only handle general exceptions, but to also remember some state between handling different operations a handler is responsible for.
-For example, this allows implementing stateful computation, which replies to a get effect by returning the last put effects input.
-Algebraic effect handlers conform to a standard interface, which we call the `effect API', comprising the use of an effectful operation (called a `send', akin to throw for exceptions) and a way to interpret, or `handle', that operation (akin to catch for exceptions). We define later in more precise terms the form of the effect API, which are given in a generic way for any operation.
-Thus an effect API provides a way to `send' effects and `handle' them, where `send' corresponds to throwing and `handle' to catching an exception. It also provides a way to extract the final value once we have handled all effects.
 
-One of our larger aims is to explore how to emulate modular monadic semantics \cite{3MT}, which provides composable way to combine language feature with monadic semantics approach,
-which allows expressing semantics in terms of operations provided by transformers.
-We hope this gives a good start towards managing complexities, which arise with pattern matching and algebraic effects.
 
 % flow of the ideas key properties basic structure
 
@@ -154,48 +134,65 @@ We hope this gives a good start towards managing complexities, which arise with 
 %
 
 % running an effect can be done easily with an empty set because then the impure constructor can not hold any membership proof and thus is empty
-% 
-\section{Background}
+%
+%\section{Background}
 
-\subsection{Algebraic effects}
-
-Algebraic effects in theory consist of a signature of operations and their equaitons.
-An effect is represented by a type family handling particular effect together with a name identifying the given effect.
-% signature consists of X, List (\a b : X -> a = b)
-% and equations
-% we do not impose any equations in our treatment of operations
-% we verify monad and monadfail laws
-
-% running an effect
-When the effect set is empty we should be able to extract the final value by realizing that there can be no proof of membership within a set.
-
-\subsubsection{Algebraic effects as monads and graded monads}
-
-Algebraic effects can be presented on top of a monadic interface, we provide this interface by implementing it using a free monad.
-The importance of this interface is that we can provide an interface, which chains different operations together and allows us to give a correct interface.
-For graded monads this allows us to do an interface, which combines different effect sets.
-
-\subsubsection{Handling effects}
-
-Handlers of effects can be thought of as a generalization of exception handlers, which provide richer context
-and are constrained to respect a certain set of equations.
-\subsection{MaybeT and MonadFail}
-
-MaybeT is the monad transformer, i.e. a transformation ${T A : Set} -> Monad T -> Maybe T A -> Monad S$.
-$MaybeT m x = m (Maybe x)$
-We can think of MaybeT as an extension by an arbitrary, single option failure case. especially in the strucutre of
-a Free monad as Monad is Pure and fixed point of a functor with this identity case.
-
-
-\section{Our results}
+\paragraph{Our results}
 
 We have produced an intermediate construction between the variations of Kiselyov in Agda.
 This construction is inbetween the construction the monads Eff and Freer as presented in their work. This is due to our focus on reasoning about monadic laws and
 ease of construction within a dependently-typed framework instead of performance.
 We further describe how to extend these with failing pattern matching, for simpler description, we present our code in stages and explain how to generically add
 TODO add short explanation of similarities and differences
+\dnote{Might be better to do the similarities and differences inline
+  as we go.}
 
-\section{Effect monad construction}
+\section{Algebraic effects via graded monads}
+
+Algebraic effects in theory consist of a signature of operations and
+their equations.  An effect is represented by a type family handling
+particular effect together with a name identifying the given effect.
+\dnote{Too Haskell.. can we say in a more general way.}
+
+% signature consists of X, List (\a b : X -> a = b)
+% and equations
+% we do not impose any equations in our treatment of operations
+% we verify monad and monadfail laws
+
+\dnote{Oleg's definition}
+
+\dnote{Then ours}
+
+
+% running an effect
+When the effect set is empty we should be able to extract the final
+value by realizing that there can be no proof of membership within a
+set.
+
+%Monad transformers start with an encoding and only afterwards attempt to provide the necessary operations. Effects do the reverse we firt think in terms of operation and equations, which the
+%y should satisfy and only provide implementation afterwards. An advantage of it is that the interpretation does not change structure of already written code, while this tends to happen when adding new operations using transformers. \cite{exteffold}
+
+
+%\paragraph{Handlers}
+
+%For example, this allows implementing stateful computation, which replies to a get ef%fect by returning the last put effects input.
+%Algebraic effect handlers conform to a standard interface, which we call the `effect API', comprising the use of an effectful operation (called a `send', akin to throw for exceptions) and a way to interpret, or `handle', that operation (akin to catch for exceptions). We define later in more precise terms the form of the effect API, which are given in a generic way for any operation.
+%Thus an effect API provides a way to `send' effects and `handle' them, where `send' corresponds to throwing and `handle' to catching an exception. It also provides a way to extract the final value once we have handled all effects.
+
+\paragraph{Algebraic effects as monads and graded monads}
+
+\dnote{define graded monads briefly, probably abstractly in mathematics}
+
+Algebraic effects can be presented on top of a monadic interface, we provide this interface by implementing it using a free monad.
+The importance of this interface is that we can provide an interface,
+which chains different operations together and allows us to give a
+correct interface.
+\dnote{this sentence uses the word interface three times!}
+
+For graded monads this allows us to do an interface, which combines
+different effect sets.
+
+\subsection{Effect monad construction}
 
 We review the construction of Effect monad, to illustrate what issues pop up, while trying to make this into a admissible construction in Agda.
 In haskell, these constructions can be done easily using the general datatypes, but they included datatype level fixed points in full.
@@ -204,20 +201,61 @@ Or we could fuse the left kan extension construction into the effect monad and o
 This means we do not have to provide a container construction for the underlying work as in \cite{?}. This works by realizing that the instantiation of F in the recursion to Lan of an arbitrary datatype is strictly positive without a recourse to containers.
 We pick to do a halfway point between the constructions in Kyseliov, we do not use the optimized version, but we use the idea of effects should belong to a set.
 
-\section{Graded monad proofs}
-
+\subsection{Graded monad proofs}
+\dnote{is the intention here to explain about how we did the mechanisation?}
 We grade monads to allow to combining the effect sets and thus being able to refer to only subcomputations in the programs and proofs.
 We do this by describing a reindexing operation, which combines sets and allows us to refer to distinct effects with same names.
-We need a way to reindex the effect set to embed the left effect set into a list.
+We need a way to reindex the effect set to embed the left effect set
+into a list.
+\dnote{the following sounds like it should go above in the definition
+  of graded monads / the instance we are defining here.}
 We note that the list of effects is itself a monoid and we grade by it. Graded unit, is the unit of our monad but for empty lists.
-To produce graded bind, we append the 2 lists of effects and combine them. We 
+To produce graded bind, we append the 2 lists of effects and combine them. We
 
-\section{Handling EffectFail}
+
+\paragraph{Handling effects}
+
+%Handlers of effects can be thought of as a generalization of exception handlers, whic%h provide richer context
+%and are constrained to respect a certain set of equations.
+Algebraic effects
+provide ways to write programs causing effects which are treated
+abstractly initially but which are given concrete implementations
+afterwards using \emph{handlers} (akin to raising an exception and
+later handling it).
+This generalizes to general effects: effect handlers provide a way to
+not only handle general exceptions, but to also remember some state
+between handling different operations a handler is responsible for.
+Handlers are then also constrained to respect a set of domain-specific
+equations.
+\dnote{How much do we need to get into handlers here?}
+
+
+\section{Leveraging MaybeT and MonadFail}
+
+In Haskell, if a \emph{do}-expression performs a pattern
+matching `bind' that may fail, then the monad being used
+must also have an instance of the \texttt{MonadFail} class:
+%
+\begin{Verbatim}[fontsize=\footnotesize]
+class MonadFail m where
+  fail :: String -> m a
+\end{Verbatim}
+%
+\dnote{link with MaybeT}
+MaybeT is the monad transformer, i.e. a transformation ${T A : Set} -> Monad T -> Maybe T A -> Monad S$.
+$MaybeT m x = m (Maybe x)$
+We can think of MaybeT as an extension by an arbitrary, single option failure case. especially in the strucutre of
+a Free monad as Monad is Pure and fixed point of a functor with this identity case.
+
+\subsection{Handling EffectFail}
 We have to modify handling, we state a different form of initiality, as much as effects are inspired by initiality, we provide a type-theoretic
 motivation
 for our definition, to provide handling of effectfail, we interpret the results and embed them into Maybe and propagate the underlying failure.
 This should be correct not by some appeal to category theory as initiality is normally stated, but by appealing to the API we would expect from our system.
 We would excpect this API to propagate pattern matching failure. To run EffectFail we either want to extract the underlying result or propagate the failure of underlying Pure result.
+
+
+
 
 \section{Future directions}
 As much we have constructed the monad in agda and verified the various laws. For practical purposes there needs to be more than just a monadic structure.
@@ -231,7 +269,16 @@ The reason for this being that we need the ambient category to be locally small 
 
 Another direction of future research is to construct an isomorphism between continuations and the fast type-aligned queues of Kiselyov, quotiented by their composition,
 thus providing a more efficient implementation of effects without the overheads to reasoning this entails as we focus on semantic constructions instead of executable code, this is not our primary concern.
-We would expect this to then transport by univalence, but as discussed in {unitransport} we would need also some form of representation independence coming from parametricity for this to be actually efficient.
+We would expect this to then transport by univalence, but as discussed
+in {unitransport} we would need also some form of representation
+independence coming from parametricity for this to be actually
+efficient.
+
+% MOVED FROM START BEFORE- CAN CUT.
+One of our larger aims is to explore how to emulate modular monadic semantics \cite{3MT}, which provides composable way to combine language feature with monadic semantics approach,
+which allows expressing semantics in terms of operations provided by transformers.
+We hope this gives a good start towards managing complexities, which arise with pattern matching and algebraic effects.
+
 \appendix
 \section{Appendix Title}
 
