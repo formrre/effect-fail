@@ -2,13 +2,14 @@
 
 \usepackage{amsmath}
 \usepackage{fancyvrb}
+\usepackage{xypic}
 
 \CustomVerbatimEnvironment{SVerbatim}{Verbatim}{fontsize=\small,
 xleftmargin=0.5cm,
 xrightmargin=0.2cm,commandchars=\\\{\},numbersep=0.9em}
 
 
-\newcommand{\cL}{{\cal L}}
+%\newcommand{\cL}{{\cal L}}
 
 \settopmatter{printacmref=false} % Removes citation information below abstract
 \renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
@@ -256,6 +257,21 @@ where, for all monadic computations \texttt{x :: m a}:
 %
 i.e., failure is global and non-recoverable.
 
+We given this a more abstract mathematical definition,
+ignoring the \texttt{String} aspect in favour of a map
+from a terminal object $1$.
+%
+\begin{definition}[Failing monad]
+  For a category $\mathcal{C}$ with terminal object $1$
+  then a \emph{failing monad} for endofunctor $T : \mathcal{C}
+  \rightarrow \mathcal{C}$ is a monad with a natural transformation
+  $\mathit{mfail}_A : 1 \rightarrow T\ A$ such that for all $g : 1
+\rightarrow T\ B$ then:
+$$
+\mu \circ T (g \circ !_A) \circ \mathit{mfail}_A = \mathit{mfail}_B
+$$
+\end{definition}
+
 If we attempt to give a \texttt{MonadFail} instance for the free
 monad, we get stuck immediately: the free monad, is the monad for
 which exactly the monad equations hold and nothing more, i.e.,
@@ -305,6 +321,44 @@ motivation
 for our definition, to provide handling of effectfail, we interpret the results and embed them into Maybe and propagate the underlying failure.
 This should be correct not by some appeal to category theory as initiality is normally stated, but by appealing to the API we would expect from our system.
 We would excpect this API to propagate pattern matching failure. To run EffectFail we either want to extract the underlying result or propagate the failure of underlying Pure result.
+
+\paragraph{Algebraic freeness}
+
+A monad $T$ is \emph{algebraically free on an endofunctor $F$} is
+the category of $T$-algebras (monad algebras) is isomorphic to the category of
+$F$-algebras. An algebraically-free monad is itself a free monad.
+Therefore, in order to consider the notion of a ``free failing
+monad'', we characterise the category of \texttt{MonadFail} algebras.
+
+\begin{definition}
+  For a monad $T : \mathcal{C} \rightarrow \mathcal{C}$, the category of monad algebras is the category
+  of $T$-algebras which are compatible with the monad operations. That
+  is $T\textsf{Alg}_{\mathsf{mnd}}$ is a category with objects as
+  pairs $(A, h : A \rightarrow T\ A)$  where $A$ and $h$ are objects
+  and morphisms of $\mathcal{C}$ respectively satisfying compatibility
+  with the monad operations:
+  %
+  \dnote{Space for diagrams? or just summarise as equation}
+\end{definition}
+
+\begin{definition}
+  For a category $\mathcal{C}$ with terminal object $1$ and
+  a failing monad $T : \mathcal{C} \rightarrow \mathcal{C}$, the
+  category of its failing monad algebras
+  $T\textsf{Alg}_{\mathsf{mndFail}}$ is a category of monad algebras, with objects
+  pairs $(A, h : A \rightarrow T\ A)$  where $A \in |\mathcal{C}|$ and
+  $h \in \mathcal{C}(A, T\ A)$ compatible with the monad operations,
+  and the following additional compatibility with $\mathit{mfail}$ if
+  there exists a morphism $h' : 1 \rightarrow A$ such that:
+  %
+  \begin{equation*}
+    \xymatrix@C=4em{
+      1 \ar[dr]_{h'} \ar[r]^-{\mathit{mfail}_A} &  T\ A \ar[d]^{h} \\
+      & A
+      }
+  \end{equation*}
+  %
+\end{definition}
 
 
 
