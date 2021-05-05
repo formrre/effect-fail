@@ -346,8 +346,8 @@ monad'', we characterise the category of \texttt{MonadFail} algebras.
   a failing monad $T : \mathcal{C} \rightarrow \mathcal{C}$, the
   category of its failing monad algebras
   $T\textsf{Alg}_{\mathsf{mndFail}}$ is a category of monad algebras, with objects
-  pairs $(A, h : A \rightarrow T\ A)$  where $A \in |\mathcal{C}|$ and
-  $h \in \mathcal{C}(A, T\ A)$ compatible with the monad operations,
+  pairs $(A, h : T\ A \rightarrow A)$  where $A \in |\mathcal{C}|$ and
+  $h \in \mathcal{C}(T\ A, A)$ compatible with the monad operations,
   and the following additional compatibility with $\mathit{mfail}$ if
   there exists a morphism $h' : 1 \rightarrow A$ such that:
   %
