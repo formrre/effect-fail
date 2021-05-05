@@ -181,8 +181,8 @@ data FFree f a where
 \begin{agda}[mathescape]
 data Eff (E : List (Set -> Set)) (A : Set) : Set$_1$ where
   Pure : A -> Eff E A
-  Impure : {F : Set -> Set} {X : Set} {prf : F $\in$ E} ->
-           F X -> (X -> Eff E A) -> Eff E A
+  Impure : {F : Set -> Set} {X : Set} {prf : F $\in$ E}
+        -> F X -> (X -> Eff E A) -> Eff E A
 \end{agda}
 
 
