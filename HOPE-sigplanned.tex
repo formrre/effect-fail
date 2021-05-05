@@ -2,8 +2,14 @@
 
 \usepackage{amsmath}
 \usepackage{fancyvrb}
+\usepackage{xypic}
 
-\newcommand{\cL}{{\cal L}}
+\CustomVerbatimEnvironment{SVerbatim}{Verbatim}{fontsize=\small,
+xleftmargin=0.5cm,
+xrightmargin=0.2cm,commandchars=\\\{\},numbersep=0.9em}
+
+
+%\newcommand{\cL}{{\cal L}}
 
 \settopmatter{printacmref=false} % Removes citation information below abstract
 \renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
@@ -249,10 +255,10 @@ In Haskell, if a \emph{do}-expression performs a pattern
 matching `bind' that may fail, then the monad being used
 must also have an instance of the \texttt{MonadFail} class:
 %
-\begin{Verbatim}[fontsize=\small,xleftmargin=1cm]
+\begin{SVerbatim}
 class MonadFail m where
   fail :: String -> m a
-\end{Verbatim}
+\end{SVerbatim}
 %
 where, for all monadic computations \texttt{x :: m a}:
 %
@@ -264,11 +270,63 @@ where, for all monadic computations \texttt{x :: m a}:
 %
 i.e., failure is global and non-recoverable.
 
-\dnote{link with MaybeT}
-MaybeT is the monad transformer, i.e. a transformation ${T A : Set} -> Monad T -> Maybe T A -> Monad S$.
-$MaybeT m x = m (Maybe x)$
-We can think of MaybeT as an extension by an arbitrary, single option failure case. especially in the strucutre of
-a Free monad as Monad is Pure and fixed point of a functor with this identity case.
+We given this a more abstract mathematical definition,
+ignoring the \texttt{String} aspect in favour of a map
+from a terminal object $1$.
+%
+\begin{definition}[Failing monad]
+  For a category $\mathcal{C}$ with terminal object $1$
+  then a \emph{failing monad} for endofunctor $T : \mathcal{C}
+  \rightarrow \mathcal{C}$ is a monad with a natural transformation
+  $\mathit{mfail}_A : 1 \rightarrow T\ A$ such that for all $g : 1
+\rightarrow T\ B$ then:
+$$
+\mu \circ T (g \circ !_A) \circ \mathit{mfail}_A = \mathit{mfail}_B
+$$
+\end{definition}
+
+If we attempt to give a \texttt{MonadFail} instance for the free
+monad, we get stuck immediately: the free monad, is the monad for
+which exactly the monad equations hold and nothing more, i.e.,
+not the extra \texttt{MonadFail} axiom above. Therefore, we seek
+to have both the benefits of the free monad structure for
+capturing computation trees (for the purposes of effect handling)
+but also the property of non-recoverable failure captured
+by \texttt{MonadFail}. The simplest construction support the
+above law generally is provided by the ``\texttt{MaybeT}''
+\emph{monad transformer}~\cite{transformerpub}, which
+in Haskell is typically defined as follows:
+%
+\begin{SVerbatim}
+newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
+\end{SVerbatim}
+%
+That is, a \texttt{MaybeT} is a monad homomorphism, mapping
+$M -$ to $M (1 + -)$.
+%
+%MaybeT is the monad transformer, i.e. a transformation ${T A : Set} -> Monad T -> Maybe T A -> Monad S$.
+%$MaybeT m x = m (Maybe x)$
+%
+We can think of \texttt{MaybeT} as an extension by an arbitrary,
+single option failure case. Applying this to the free monad
+structure yields a lawful instance of \texttt{MonadFail}:
+%
+\begin{SVerbatim}
+  instance MonadFail (MaybeT m a) where
+    fail _ = MaybeT (return Nothing)
+\end{SVerbatim}
+%
+\dnote{verify equation?}
+%
+%especially in the strucutre of
+%a Free monad as Monad is Pure and fixed point of a functor with this identity case.
+
+However, we still require \emph{freeness} of this structure in order
+to yield a suitable semantic core for handling algebraic effects
+(augmented with non-recoverable failure). We therefore ask,
+\emph{is the above the ``free MonadFail'' structure?}.
+
+\dnote{merge in the next part}
 
 \subsection{Handling EffectFail}
 We have to modify handling, we state a different form of initiality, as much as effects are inspired by initiality, we provide a type-theoretic
@@ -277,7 +335,47 @@ for our definition, to provide handling of effectfail, we interpret the results 
 This should be correct not by some appeal to category theory as initiality is normally stated, but by appealing to the API we would expect from our system.
 We would excpect this API to propagate pattern matching failure. To run EffectFail we either want to extract the underlying result or propagate the failure of underlying Pure result.
 
+\paragraph{Algebraic freeness}
 
+A monad $T$ is \emph{algebraically free on an endofunctor $F$} is
+the category of $T$-algebras (monad algebras) is isomorphic to the category of
+$F$-algebras. An algebraically-free monad is itself a free monad.
+Therefore, in order to consider the notion of a ``free failing
+monad'', we characterise the category of \texttt{MonadFail} algebras.
+
+\begin{definition}
+  For a monad $T : \mathcal{C} \rightarrow \mathcal{C}$, the category of monad algebras is the category
+  of $T$-algebras which are compatible with the monad operations. That
+  is $T\textsf{Alg}_{\mathsf{mnd}}$ is a category with objects as
+  pairs $(A, h : A \rightarrow T\ A)$  where $A$ and $h$ are objects
+  and morphisms of $\mathcal{C}$ respectively satisfying compatibility
+  with the monad operations:
+  %
+  \dnote{Space for diagrams? or just summarise as equation}
+\end{definition}
+
+\begin{definition}
+  For a category $\mathcal{C}$ with terminal object $1$ and
+  a failing monad $T : \mathcal{C} \rightarrow \mathcal{C}$, the
+  category of its failing monad algebras
+  $T\textsf{Alg}_{\mathsf{mndFail}}$ is a category of monad algebras, with objects
+  pairs $(A, h : T\ A \rightarrow A)$  where $A \in |\mathcal{C}|$ and
+  $h \in \mathcal{C}(T\ A, A)$ compatible with the monad operations,
+  and the following additional compatibility with $\mathit{mfail}$ if
+  there exists a morphism $h' : 1 \rightarrow A$ such that:
+  %
+  \begin{equation*}
+    \xymatrix@C=4em{
+      1 \ar[dr]_{h'} \ar[r]^-{\mathit{mfail}_A} &  T\ A \ar[d]^{h} \\
+      & A
+      }
+  \end{equation*}
+  %
+\end{definition}
+%
+\dnote{Result that the free monad algebra with $(T\ A, \mu)$ is also
+  the free failing monad algebra where the above equation comes from
+  the \texttt{MonadFail} axiom.}
 
 
 \section{Future directions}
