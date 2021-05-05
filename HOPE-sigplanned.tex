@@ -406,6 +406,10 @@ We would then expect the freer monad T over X to have T-algebras isomorphic to t
 We would expect the formal statement of this conjecture might be provable in some appropriate container \cite{indexed containers} or generic levitated presentation \cite{levitation},
 which would allow us to connect the F-algebra of a functor with the algebra of the underlying datatype.
 
+\begin{conjecture}[Endofunctor algebras of Left Kan extensions]
+Given a type family $G : Set \rightarrow Set$ with a homotopy-initial algebra semantics $IAlg(G)$, the family of $Lan(G)$-endofunctor algberas is isomorphic to $IAlg(G)$.
+\end{conjecture}
+
 Another direction of future research is to construct an isomorphism between continuations and the fast type-aligned queues of Kiselyov, quotiented by their composition,
 thus providing a more efficient implementation of effects without the overheads to reasoning this entails as we focus on semantic constructions instead of executable code, this is not our primary concern.
 We would expect this to then transport by univalence, but as discussed
