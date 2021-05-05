@@ -152,6 +152,7 @@ TODO add short explanation of similarities and differences
 Algebraic effects in theory consist of a signature of operations and
 their equations.  An effect is represented by a type family handling
 particular effect together with a name identifying the given effect.
+% consists of a collection of operations and their signatures Ai -> Bi, these operations might
 \dnote{Too Haskell.. can we say in a more general way.}
 
 % signature consists of X, List (\a b : X -> a = b)
@@ -161,7 +162,19 @@ particular effect together with a name identifying the given effect.
 
 \dnote{Oleg's definition}
 
+The original definition of a Freer monad as defined by Kiselyov et al. is as follows
+\begin{haskell}
+data FFree f a where
+  Pure :: a → FFree f  a
+  Impure :: f x → (x → FFree f a) → FFree f a
+\end{haskell}
+
 \dnote{Then ours}
+\begin{haskell}
+data Eff (E : List (Set -> Set)) (A : Set) : Set₁ where
+  Pure : A -> Eff E A
+  Impure : {F : Set -> Set} {X : Set} -> .{proof_FinE : boolToSet (inSetList F E)} -> F X -> (X -> Eff E A) -> Eff E A
+\end{haskell}
 
 
 % running an effect
@@ -277,17 +290,19 @@ To extend the proofs from our current work to the quotient case we need to prove
 To verify that all the constructions preserve all equations. We note that by theorem 3.1 and 3.2 \cite{ncatlab} this result should follow in Homotopy type theory.
 The reason for this being that we need the ambient category to be locally small and complete with homotopy type theory we should be able to get all colimits.
 
+These lemmas apply only to the free monad with a forgetful functor $Mnd(C) \rightarrow Endo(C)$, we suggest that this definition should extend to Mnd(C) \rightarrow (C,ob(C)).
+We conjecture that the F-algebra of the left kan extension endofunctor for a quotient inductive type family is the underlying algebra as in the initial algebra semantics of the given type family.
+This should allow us to extend the isomorphism in terms of algebraic freeness to the freer construction.
+We would then expect the freer monad T over X to have T-algebras isomorphic to the algebras of X.
+We would expect the formal statement of this conjecture might be provable in some appropriate container \cite{indexed containers} or generic levitated presentation \cite{levitation},
+which would allow us to connect the F-algebra of a functor with the algebra of the underlying datatype.
+
 Another direction of future research is to construct an isomorphism between continuations and the fast type-aligned queues of Kiselyov, quotiented by their composition,
 thus providing a more efficient implementation of effects without the overheads to reasoning this entails as we focus on semantic constructions instead of executable code, this is not our primary concern.
 We would expect this to then transport by univalence, but as discussed
 in {unitransport} we would need also some form of representation
 independence coming from parametricity for this to be actually
 efficient.
-
-% MOVED FROM START BEFORE- CAN CUT.
-One of our larger aims is to explore how to emulate modular monadic semantics \cite{3MT}, which provides composable way to combine language feature with monadic semantics approach,
-which allows expressing semantics in terms of operations provided by transformers.
-We hope this gives a good start towards managing complexities, which arise with pattern matching and algebraic effects.
 
 \appendix
 \section{Appendix Title}
