@@ -3,6 +3,11 @@
 \usepackage{amsmath}
 \usepackage{fancyvrb}
 
+\CustomVerbatimEnvironment{SVerbatim}{Verbatim}{fontsize=\small,
+xleftmargin=0.5cm,
+xrightmargin=0.2cm,commandchars=\\\{\},numbersep=0.9em}
+
+
 \newcommand{\cL}{{\cal L}}
 
 \settopmatter{printacmref=false} % Removes citation information below abstract
@@ -236,10 +241,10 @@ In Haskell, if a \emph{do}-expression performs a pattern
 matching `bind' that may fail, then the monad being used
 must also have an instance of the \texttt{MonadFail} class:
 %
-\begin{Verbatim}[fontsize=\small,xleftmargin=1cm]
+\begin{SVerbatim}
 class MonadFail m where
   fail :: String -> m a
-\end{Verbatim}
+\end{SVerbatim}
 %
 where, for all monadic computations \texttt{x :: m a}:
 %
@@ -251,11 +256,48 @@ where, for all monadic computations \texttt{x :: m a}:
 %
 i.e., failure is global and non-recoverable.
 
-\dnote{link with MaybeT}
-MaybeT is the monad transformer, i.e. a transformation ${T A : Set} -> Monad T -> Maybe T A -> Monad S$.
-$MaybeT m x = m (Maybe x)$
-We can think of MaybeT as an extension by an arbitrary, single option failure case. especially in the strucutre of
-a Free monad as Monad is Pure and fixed point of a functor with this identity case.
+If we attempt to give a \texttt{MonadFail} instance for the free
+monad, we get stuck immediately: the free monad, is the monad for
+which exactly the monad equations hold and nothing more, i.e.,
+not the extra \texttt{MonadFail} axiom above. Therefore, we seek
+to have both the benefits of the free monad structure for
+capturing computation trees (for the purposes of effect handling)
+but also the property of non-recoverable failure captured
+by \texttt{MonadFail}. The simplest construction support the
+above law generally is provided by the ``\texttt{MaybeT}''
+\emph{monad transformer}~\cite{transformerpub}, which
+in Haskell is typically defined as follows:
+%
+\begin{SVerbatim}
+newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
+\end{SVerbatim}
+%
+That is, a \texttt{MaybeT} is a monad homomorphism, mapping
+$M -$ to $M (1 + -)$.
+%
+%MaybeT is the monad transformer, i.e. a transformation ${T A : Set} -> Monad T -> Maybe T A -> Monad S$.
+%$MaybeT m x = m (Maybe x)$
+%
+We can think of \texttt{MaybeT} as an extension by an arbitrary,
+single option failure case. Applying this to the free monad
+structure yields a lawful instance of \texttt{MonadFail}:
+%
+\begin{SVerbatim}
+  instance MonadFail (MaybeT m a) where
+    fail _ = MaybeT (return Nothing)
+\end{SVerbatim}
+%
+\dnote{verify equation?}
+%
+%especially in the strucutre of
+%a Free monad as Monad is Pure and fixed point of a functor with this identity case.
+
+However, we still require \emph{freeness} of this structure in order
+to yield a suitable semantic core for handling algebraic effects
+(augmented with non-recoverable failure). We therefore ask,
+\emph{is the above the ``free MonadFail'' structure?}.
+
+\dnote{merge in the next part}
 
 \subsection{Handling EffectFail}
 We have to modify handling, we state a different form of initiality, as much as effects are inspired by initiality, we provide a type-theoretic
