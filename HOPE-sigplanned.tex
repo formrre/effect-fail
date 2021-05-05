@@ -357,31 +357,36 @@ monad'', we characterise the category of \texttt{MonadFail} algebras.
   \dnote{Space for diagrams? or just summarise as equation}
 \end{definition}
 
-\begin{definition}
-  For a category $\mathcal{C}$ with terminal object $1$ and
-  a failing monad $T : \mathcal{C} \rightarrow \mathcal{C}$, the
-  category of its failing monad algebras
+\begin{definition}[Failing monad algebras]
+  For a %terminal object $1$ and
+  failing monad $T : \mathcal{C} \rightarrow \mathcal{C}$, the
+  category of its algebras
   $T\textsf{Alg}_{\mathsf{mndFail}}$ is a category of monad algebras, with objects
-  pairs $(A, h : T\ A \rightarrow A)$  where $A \in |\mathcal{C}|$ and
-  $h \in \mathcal{C}(T\ A, A)$ compatible with the monad operations,
-  and the following additional compatibility with $\mathit{mfail}$ if
-  there exists a morphism $h' : 1 \rightarrow A$ such that:
+  $(A, h)$ where
+  $h \in \mathcal{C}(T A, A)$ is compatible with the monad operations
+  and there exists a morphism $h' : 1 \rightarrow A$ such that:
   %
 
   \tnote{this does not render correctly on my setup}
-  \begin{equation*}
+  \begin{equation}
+    \label{eq:mfail-compat}
     \xymatrix@C=4em{
       1 \ar[dr]_{h'} \ar[r]^-{\mathit{mfail}_A} &  T\ A \ar[d]^{h} \\
       & A
       }
-  \end{equation*}
+  \end{equation}
   %
 \end{definition}
 %
-\dnote{Result that the free monad algebra with $(T\ A, \mu)$ is also
-  the free failing monad algebra where the above equation comes from
-  the \texttt{MonadFail} axiom.}
-
+\begin{proposition}
+The free monad algebra $(T A, \mu_A)$ is a free failing monad algebra.
+\end{proposition}
+%
+\begin{proof}
+Equation~\ref{eq:mfail-compat} follows from the failing monad
+axiom with $h' = \mathit{mfail}_{T A}$.
+\dnote{show more of the proof? as a diagram?}
+\end{proof}
 
 \section{Future directions}
 As much we have constructed the monad in agda and verified the various laws. For practical purposes there needs to be more than just a monadic structure.
