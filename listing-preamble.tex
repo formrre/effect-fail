@@ -1,0 +1,68 @@
+%%%%%% HASKELL
+\lstdefinelanguage{Haskell}{%
+  mathescape=true,
+  morecomment=[l]{--},
+  comment=[l]{\{-},
+  moredelim=[s][\itshape]{`}{`},
+  showspaces=false,
+  aboveskip=0.5em,
+  belowskip=0.5em,
+  commentstyle=\itshape\color{black!60},
+  basicstyle=\ttfamily\small,%\sffamily\small,%
+  flexiblecolumns=true,
+  columns=[l]flexible,
+  columns=fullflexible,
+  keepspaces=true,
+  xleftmargin=2.5em,
+  % % Main keywords
+  keywordstyle = \color{blue!70!black},%\color{WildStrawberry!90!Black},
+  keywords = {data, type, let, in, case, of, if, then, else, where,
+  import, class, instance, do},
+  % % morekeywords = {∀,|,:,=,\{,\},->,←,.,\,,(,),;},
+  % % % Type Constructors
+  % % keywordstyle = [2]\color{red!40!black},%\color{YellowOrange!80!Maroon},
+  % % % Data Constructors
+  % % keywordstyle = [7]\color{purple!40!black},%Mahogany!70!WildStrawberry},
+  % % keywords = [7]{Some, None, Nil, NilL, Cons, ConsL, ReadMode, S, Z},
+  numbers=left,
+  numberstyle=\tiny\color{gray}
+  % morekeywords = [4]{<,>},
+  % % % universals
+  % % keywords = [6]{a,b,t,s},
+  % % keywordstyle = [6]\color{black}\textit,
+}
+
+\lstnewenvironment{haskell}
+{\lstset{language=Haskell}}{}
+%% $
+
+
+\newcommand{\haskin}[1]{\lstinline[language=Haskell]{#1}}
+
+
+\lstnewenvironment{agda}
+{\lstset{language=Agda}}{}
+%% $
+
+\lstdefinelanguage{Agda}{%
+  mathescape=true,
+  morecomment=[l]{--},
+  comment=[l]{\{-},
+  moredelim=[s][\itshape]{`}{`},
+  showspaces=false,
+  aboveskip=0.5em,
+  belowskip=0.5em,
+  commentstyle=\itshape\color{black!60},
+  basicstyle=\ttfamily\small,%\sffamily\small,%
+  flexiblecolumns=true,
+  columns=[l]flexible,
+  columns=fullflexible,
+  keepspaces=true,
+  xleftmargin=2.5em,
+  % % Main keywords
+  keywordstyle = \color{blue!70!black},%\color{WildStrawberry!90!Black},
+  keywords = {data, type, let, in, case, of, if, then, else, where,
+  import, class, instance},
+ % numbers=left,
+  numberstyle=\tiny\color{gray}
+}
