@@ -2,7 +2,8 @@
 
 \usepackage{amsmath}
 \usepackage{fancyvrb}
-\usepackage[all,cmtip]{xy}
+% TODO readd later just so i do not have to struggle with xy installation right now
+% \usepackage[all,cmtip]{xy}
 
 % For Haskell listings
 \usepackage{listings}
@@ -347,7 +348,7 @@ Therefore, in order to consider the notion of a ``free failing
 monad'', we characterise the category of \texttt{MonadFail} algebras.
 
 \begin{definition}
-  For a monad $T : \mathcal{C} \rightarrow \mathcal{C}$, the category of monad algebras is the category
+  For a monad $T : \mathcal{C} \rightarrow \mathcal{C}$, the category of monad algebras if the category
   of $T$-algebras which are compatible with the monad operations. That
   is $T\textsf{Alg}_{\mathsf{mnd}}$ is a category with objects as
   pairs $(A, h : A \rightarrow T\ A)$  where $A$ and $h$ are objects
