@@ -2,7 +2,7 @@
 
 \usepackage{amsmath}
 \usepackage{fancyvrb}
-\usepackage{xypic}
+\usepackage[all,cmtip]{xy}
 
 % For Haskell listings
 \usepackage{listings}
@@ -301,7 +301,7 @@ above law generally is provided by the ``\texttt{MaybeT}''
 in Haskell is typically defined as follows:
 %
 \begin{haskell}
-newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
+newtype MaybeT m a = MaybeT (m (Maybe a))
 \end{haskell}
 %
 That is, a \texttt{MaybeT} is a monad homomorphism, mapping
