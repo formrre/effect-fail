@@ -64,7 +64,8 @@ with a notion of non-recoverable failure.
 %We show that the standard incarnation of effects does not satisfy some requirements needed to build compact,
 %non-repetitive semantics, when the language does not have a type system such as in cases of intermediate languages in compilers.
 We show how the MaybeT monad transformer can be used, studying the
-implications on the underlying theory via a mechanization in type
+implications on the underlying theory via a (work in progress)
+mechanization in type
 theory. Along the way we also give a graded monadic view of algebraic
 effects.
 \end{abstract}
@@ -113,8 +114,8 @@ fail. In this style, the above code could be written as:
          return (Num (- n))
 \end{haskell}
 %
-Since the pattern \texttt{Num n} is `refutable' then this
-\emph{do}-expression desugars into:
+Since the \haskin{(Num n)} pattern is `refutable' this
+desugars into:
 %
 \begin{haskell}
   eval env e >>= (\v -> case v of
@@ -128,13 +129,13 @@ effects to include a notion of (non-recoverable) failure
 as captured by \haskin{MonadFail}.
 
 Our development is formalised in dependent-type theory
-(we use Agda) and we consider here how to formalise
-the mathematical results which support the key
+(we use Agda) capturing
+the mathematical results for the key
 constructions. As part of this, we contribute our own
 type theoretic rendering of free monads (based on a variation of
 \citet{freerm}'s `freer' monads) which is indexed by the effect
 operations captured within the computation tree describe by a free
-monad value. Furthermore, our approach yields
+monad value. Our approach yields
 a graded monad, which provides a way to reason about the compositional
 nature of effects with non-recoverable failure.
 
