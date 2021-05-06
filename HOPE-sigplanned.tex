@@ -209,7 +209,7 @@ is captured by~\citet{freerm}'s `freer' monad construction, defined
 (in Haskell) as:
 \begin{haskell}
 data FFree (f :: Type -> Type) (a :: Type) where
-  Pure :: a -> FFree f a
+  Pure   :: a -> FFree f a
   Impure :: f x -> (x -> FFree f a) -> FFree f a
 \end{haskell}
 %
@@ -222,7 +222,7 @@ description of the effect operations captured within:
 %
 \begin{agda}[mathescape]
 data Eff (E : List (Set -> Set)) (A : Set) : Set$_1$ where
-  Pure : A -> Eff E A
+  Pure   : A -> Eff E A
   Impure : {f : Set -> Set} {X : Set} {prf : f $\in$ E}
         -> f X -> (X -> Eff E A) -> Eff E A
 \end{agda}
