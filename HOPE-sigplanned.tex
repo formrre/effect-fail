@@ -282,6 +282,9 @@ To produce graded bind, we append the 2 lists of effects and combine them.
 
 \subsection{Effect monad construction}
 
+\dnote{The following sounds like mostly we have already covered this
+  in the start of section 2 now. Are there any remaining points to
+  merge up in the first part of section 2?}
   We review the construction of Effect monad, to illustrate what issues pop up, while trying to make this into a admissible construction in Agda.
   In haskell, these constructions can be done easily using the general datatypes, but they included datatype level fixed points in full.
   In agda we can take 2 possible views of these constructions. We could go through the containers and construct a fixed point of containers as in \cite{?}.
@@ -303,7 +306,22 @@ not only handle general exceptions, but to also remember some state
 between handling different operations a handler is responsible for.
 Handlers are then also constrained to respect a set of domain-specific
 equations.
-\dnote{How much do we need to get into handlers here?}
+The graded monad construction suggests the following
+set of combinators for raising effects,
+handling effects and `escaping' from
+an effectful computation once all effects have been
+handled:
+%
+\begin{agda}
+raise  : F a -> Eff [F] a
+handle : ((x : Set) -> F x -> x) -> Eff E a -> Eff (E - F) a
+escape : Eff [] a -> a
+\end{agda}
+%
+where \haskin{E - F} deletes \haskin{F} from the list
+of effects. Note the grades give an account of what
+effects needs handling, manipulated and leveraged
+by these operations.
 
 
 \section{Leveraging MaybeT and MonadFail}
