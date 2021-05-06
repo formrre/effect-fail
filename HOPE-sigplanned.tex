@@ -213,20 +213,19 @@ Monad on M, consists of two natural transformations, return, $1 \rightarrow M$, 
 Graded monad consists of natural transformation, where M are annotated by the elements of a monoid, return being annotated by unit of the monoid
 and join annotated by the multiplication of elements annotating the parts of composition.
 Algebraic effects can be presented on top of a monadic interface, we provide this interface by implementing it using a free monad.
-The importance of this is that we can provide an interface,
-which chains different operations abstractly, postponing the concrete implementation until the full specification should be provided.
+The purpose of this is the ability to chain different operations abstractly, postponing the concrete implementation until the full specification is provided.
 
 For graded monads this allows us to do an interface, which combines
 different effect sets, by representing them as lists.
 
 \subsection{Effect monad construction}
 
-We review the construction of Effect monad, to illustrate what issues pop up, while trying to make this into a admissible construction in Agda.
-In haskell, these constructions can be done easily using the general datatypes, but they included datatype level fixed points in full.
-In agda we can take 2 possible views of these constructions. We could go through the containers and construct a fixed point of containers as in \cite{?}.
-Or we could fuse the left kan extension construction into the effect monad and observe that the result is strictly positive.
-This means we do not have to provide a container construction for the underlying work as in \cite{?}. This works by realizing that the instantiation of F in the recursion to Lan of an arbitrary datatype is strictly positive without a recourse to containers.
-We pick to do a halfway point between the constructions in Kyseliov, we do not use the optimized version, but we use the idea of effects should belong to a set.
+  We review the construction of Effect monad, to illustrate what issues pop up, while trying to make this into a admissible construction in Agda.
+  In haskell, these constructions can be done easily using the general datatypes, but they included datatype level fixed points in full.
+  In agda we can take 2 possible views of these constructions. We could go through the containers and construct a fixed point of containers as in \cite{?}.
+  Or we could fuse the left kan extension construction into the effect monad and observe that the result is strictly positive.
+  This means we do not have to provide a container construction for the underlying work as in \cite{?}. This works by realizing that the instantiation of F in the recursion to Lan of an arbitrary datatype is strictly positive without a recourse to containers.
+  We pick to do a halfway point between the constructions in Kyseliov, we do not use the optimized version, but we use the idea of effects should belong to a set.
 
 \subsection{Graded monad proofs}
 \dnote{is the intention here to explain about how we did the mechanisation?}
@@ -278,7 +277,7 @@ where, for all monadic computations \texttt{x :: m a}:
 %
 i.e., failure is global and non-recoverable.
 
-We given this a more abstract mathematical definition,
+We have given this a more abstract mathematical definition,
 ignoring the \texttt{String} aspect in favour of a map
 from a terminal object $1$.
 %
