@@ -245,26 +245,21 @@ set.
 \paragraph{Algebraic effects as monads and graded monads}
 
 \dnote{define graded monads briefly, probably abstractly in mathematics}
-Monad on M, consists of two natural transformations, return, $1 \rightarrow M$, and join, $M \circ M \rightarrow M$.
+Monad on endofunctor $M$, consists of two natural transformations,
+return, $\eta : 1 \rightarrow M$, and join, $\mu : M \circ M \rightarrow M$.
 Graded monad consists of natural transformation, where M are annotated by the elements of a monoid, return being annotated by unit of the monoid
 and join annotated by the multiplication of elements annotating the parts of composition.
 Algebraic effects can be presented on top of a monadic interface, we provide this interface by implementing it using a free monad.
 The purpose of this is the ability to chain different operations abstractly, postponing the concrete implementation until the full specification is provided.
 
+\dnote{merge in how the graded monad looks briefly}
+$\eta : 1 \rightarrow M []$ and $\mu : M e \circ M f \rightarrow M (e +\!\!\!+ f)$
+
 For graded monads this allows us to do an interface, which combines
 different effect sets, by representing them as lists.
 
-\subsection{Effect monad construction}
-
-  We review the construction of Effect monad, to illustrate what issues pop up, while trying to make this into a admissible construction in Agda.
-  In haskell, these constructions can be done easily using the general datatypes, but they included datatype level fixed points in full.
-  In agda we can take 2 possible views of these constructions. We could go through the containers and construct a fixed point of containers as in \cite{?}.
-  Or we could fuse the left kan extension construction into the effect monad and observe that the result is strictly positive.
-  This means we do not have to provide a container construction for the underlying work as in \cite{?}. This works by realizing that the instantiation of F in the recursion to Lan of an arbitrary datatype is strictly positive without a recourse to containers.
-  We pick to do a halfway point between the constructions in Kyseliov, we do not use the optimized version, but we use the idea of effects should belong to a set.
-
-\subsection{Graded monad proofs}
-\dnote{is the intention here to explain about how we did the mechanisation?}
+%\subsection{Graded monad proofs}
+\dnote{MERGE UP - keep high-level}
 We grade monads to allow to combining the effect sets and thus being able to refer to only subcomputations in the programs and proofs.
 We do this by describing a reindexing operation, which combines sets and allows us to refer to distinct effects with same names.
 We need a way to reindex the effect set to embed the left effect set
@@ -274,6 +269,15 @@ into a list.
 We note that the list of effects is itself a monoid and we grade by it. Graded unit, is the unit of our monad but for empty lists.
 To produce graded bind, we append the 2 lists of effects and combine them.
 
+
+\subsection{Effect monad construction}
+
+  We review the construction of Effect monad, to illustrate what issues pop up, while trying to make this into a admissible construction in Agda.
+  In haskell, these constructions can be done easily using the general datatypes, but they included datatype level fixed points in full.
+  In agda we can take 2 possible views of these constructions. We could go through the containers and construct a fixed point of containers as in \cite{?}.
+  Or we could fuse the left kan extension construction into the effect monad and observe that the result is strictly positive.
+  This means we do not have to provide a container construction for the underlying work as in \cite{?}. This works by realizing that the instantiation of F in the recursion to Lan of an arbitrary datatype is strictly positive without a recourse to containers.
+  We pick to do a halfway point between the constructions in Kyseliov, we do not use the optimized version, but we use the idea of effects should belong to a set.
 
 \paragraph{Handling effects}
 
