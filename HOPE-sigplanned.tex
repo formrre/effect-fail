@@ -156,10 +156,11 @@ TODO add short explanation of similarities and differences
 \dnote{Might be better to do the similarities and differences inline
   as we go.}
 
-\section{Algebraic effects via graded monads}
+\section{Algebraic effects as (graded) monads in type theory}
 
 Algebraic effects in theory consist of a signature of operations and
-their equations.  An effect is represented by a type family handling
+their equations. The collection of operations are type based
+An effect is represented by a type family handling
 particular effect together with a name identifying the given effect.
 % consists of a collection of operations and their signatures Ai -> Bi, these operations might
 \dnote{Too Haskell.. can we say in a more general way.}
@@ -188,6 +189,8 @@ data Eff (E : List (Set -> Set)) (A : Set) : Set$_1$ where
         -> F X -> (X -> Eff E A) -> Eff E A
 \end{agda}
 
+This provides a way to embed an effect to a list consisting of leafs results and effects, which need to be interpereted, consisting of the request F from a set E,
+expecting a return type X and a continuation, which tells us how how to continue once handler provides a value X. This construction can be thought as a generalization of construction to provide a possibility to include multiple effects from a particular set.
 
 % running an effect
 When the effect set is empty we should be able to extract the final
@@ -207,15 +210,15 @@ set.
 \paragraph{Algebraic effects as monads and graded monads}
 
 \dnote{define graded monads briefly, probably abstractly in mathematics}
-
+Monad on M, consists of two natural transformations, return, $1 \rightarrow M$, and join, $M \circ M \rightarrow M$.
+Graded monad consists of natural transformation, where M are annotated by the elements of a monoid, return being annotated by unit of the monoid
+and join annotated by the multiplication of elements annotating the parts of composition.
 Algebraic effects can be presented on top of a monadic interface, we provide this interface by implementing it using a free monad.
 The importance of this is that we can provide an interface,
-which chains different operations together and allows us to give a
-correct interface.
-\dnote{this sentence uses the word interface three times!}
+which chains different operations abstractly, postponing the concrete implementation until the full specification should be provided.
 
 For graded monads this allows us to do an interface, which combines
-different effect sets.
+different effect sets, by representing them as lists.
 
 \subsection{Effect monad construction}
 
