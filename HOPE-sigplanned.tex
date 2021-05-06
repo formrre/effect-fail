@@ -56,10 +56,9 @@
 
 \begin{abstract}
 Algebraic effects are one of the possible approaches to tackle modularity issues arising in applications where normally we would use monad transformers.
-One such area is programming language semantics, we show that the standard incarnation of effects does not satisfy some requirements needed to build compact,
+One such application area is in (formalised) programming language semantics, we show that the standard incarnation of effects does not satisfy some requirements needed to build compact,
 non-repetitive semantics, when the language does not have a type system such as in cases of intermediate languages in compilers.
 We show how to use a single MaybeT transformer to achieve this, we also explore the graded structure of effect monads.
-
 \end{abstract}
 
 \maketitle
@@ -156,7 +155,7 @@ TODO add short explanation of similarities and differences
 \dnote{Might be better to do the similarities and differences inline
   as we go.}
 
-\section{Algebraic effects via graded monads}
+\section{Algebraic effects as (graded) monads in type theory}
 
 Algebraic effects in theory consist of a signature of operations and
 their equations.  An effect is represented by a type family handling
