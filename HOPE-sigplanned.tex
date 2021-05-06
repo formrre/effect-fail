@@ -55,16 +55,22 @@
 \pagestyle{plain} % removes running headers
 
 \begin{abstract}
-Algebraic effects are one possible approach to tackle modularity issues arising in applications where normally we would use monad transformers.
+Algebraic effects are one approach to tackling modularity issues
+arising in structuring side effects in computation.
+%applications where normally we would use monad transformers.
 One such application area is in (formalised) programming language
-semantics. This setting motivates an extension of algebraic effects to
-include the notion of non-recoverable failure.
+semantics. This setting motivates extending algebraic effects
+with a notion of non-recoverable failure.
 %We show that the standard incarnation of effects does not satisfy some requirements needed to build compact,
 %non-repetitive semantics, when the language does not have a type system such as in cases of intermediate languages in compilers.
-We show how to use the MaybeT transformer to achieve this. We also explore the graded structure of effect monads.
+We show how the MaybeT monad transformer can be used, studying the
+implications on the underlying theory via a mechanization in type
+theory. Along the way we also give a graded monadic view of algebraic
+effects.
 \end{abstract}
 
 \maketitle
+\vspace{-1em}
 
 % clearly seperate motivation
 % failure and effects not satisfying MonadFail laws
@@ -91,14 +97,14 @@ to not occur (assuming that the typing procedure for this language is sound):
                       _     -> error "Impossible"
 \end{haskell}
 %
-The \texttt{error} expression here represents
+The \haskin{error} expression here represents
 a failure side-effect that is intentionally non-recoverable; once it
 is evaluate failure prevents the rest of the interpretation.
 
 In Haskell, the above code pattern can be abstracted via
 the \emph{do}-notation and the use of
-the \texttt{MonadFail} type class which provides an operation
-\texttt{fail :: String -> m a} which is used to desugar pattern matches which may
+the \haskin{MonadFail} type class which provides an operation
+\haskin{fail :: String -> m a} which is used to desugar pattern matches which may
 fail. In this style, the above code could be written as:
 %
 \begin{haskell}
@@ -119,7 +125,7 @@ Since the pattern \texttt{Num n} is `refutable' then this
 In this work, we capture the same idea but in the
 setting of \emph{algebraic effects}, extending algebraic
 effects to include a notion of (non-recoverable) failure
-as captured by \texttt{MonadFail}.
+as captured by \haskin{MonadFail}.
 
 Our development is formalised in dependent-type theory
 (we use Agda) and we consider here how to formalise
