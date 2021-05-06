@@ -18,6 +18,8 @@
 \newcommand{\dnote}[1]{\textcolor{purple}{Dom: #1}}
 \newcommand{\tnote}[1]{\textcolor{blue}{Timo: #1}}
 
+\newcommand{\dnoteF}[1]{\textcolor{purple}{\footnote{\dnote{#1}}}}
+
 %% Bibliography style
 \bibliographystyle{ACM-Reference-Format}
 %% Citation style
@@ -390,34 +392,52 @@ axiom with $h' = \mathit{mfail}_{T A}$.
 \end{proof}
 
 \section{Future directions}
-As much we have constructed the monad in agda and verified the various laws. For practical purposes there needs to be more than just a monadic structure.
-We want to reason about the local code using the eponymous algebraic laws. We would like to attach equations the handlers should satisfy to the monad.
+We have constructed the \texttt{Eff} monad in Agda and verified the various
+monad / graded monad laws. For practical purposes there needs to be more than just a
+monadic structure.{\dnoteF{Explain what practical purposes.}}
+We want to reason about the local code using the eponymous algebraic
+laws. We would like to attach equations the handlers should satisfy to
+the monad.{\dnoteF{Not sure of the flow here. Is the stuff
+    about QITs meant to be the solution to this?}}
 There are multiple interesting directions to take this in.
-We would also like to use Quotient inductive types to provide a view of operations for reasoning and correct-by-construction definition of handlers,
+We would also like to use Quotient Inductive Types~\cite{altenkirch2016type} to provide a view of operations for reasoning and correct-by-construction definition of handlers,
 which abstracts away from the concrete choices when reasoning, yet forces us to prove satisfiability of the algebriac equations by some handler.
 To extend the proofs from our current work to the quotient case we need to prove a type-theoretic formulation of algebraic freedom \cite{ncatlab}.
-To verify that all the constructions preserve all equations. We note that by theorem 3.1 and 3.2 \cite{ncatlab} this result should follow in Homotopy type theory.
-The reason for this being that we need the ambient category to be locally small and complete with homotopy type theory we should be able to get all colimits.
+To verify that all the constructions preserve all
+equations.\dnoteF{Not a sentence} We note that by theorem 3.1 and 3.2 \cite{ncatlab} this result should follow in homotopy type theory.
+The reason for this being that we need the ambient category to be
+locally small and complete with homotopy type theory we should be able
+to get all colimits.\dnoteF{Flip this around and explain the result of
+  theorem 3.1/3.2 then just cite the ncatlab. As it is it comes in a
+  hard to understand order. Perhaps even just state these results so
+  it's easier to understand the bit coming up.}
 
-These lemmas apply only to the free monad with a forgetful functor $Mnd(C) \rightarrow Endo(C)$, we suggest a generalization that should extend these to the forgetful functor $Mnd(C) \rightarrow (C,ob(C))$.
+These lemmas apply only to the free monad with a forgetful functor
+$Mnd(C) \rightarrow Endo(C)$, we suggest a generalization that should
+extend these to the forgetful functor $Mnd(C) \rightarrow
+(C,ob(C))$.\dnote{What is thing on the right of the arrow? Needs explaining.}
 
-There is no obvious generalization, which would let us talk about algebras over an arbitrary $(C,ob(C))$, we thus take a type theoretic view and think what would we expect the isomorphism to involve.
-Semantics of a type family $G$ is thought as an initial object in some category $IAlg(G)$ corresponding to its algebraic description.
-Homotopy type theory generalizes this to quotients (and other more general higher inductive types).
-Every endofunctor also has an associated category of algebras, we propose that this category for left Kan extension of G, $Lan(G)$, considered as an endofunctor should
-be isomorphic to the category $IAlg(G)$.
+There is no obvious generalization, which would let us talk about algebras over an arbitrary $(C,ob(C))$, we thus take a type theoretic view to
+extend the isomorphism in the definition of algebraic freeness to the freer construction.
 
-This should allow us to extend the isomorphism in the definition of algebraic freeness to the freer construction. Thus the following conjecture.
-
+The semantics of a type constructor $G$ is thought as an initial
+object in some category $IAlg(G)$\dnoteF{Why not $Alg(G)$?} corresponding to its algebraic description.
+Homotopy type theory generalizes this to quotient types\dnoteF{explain
+  what this provides a bit more} (and other more general higher
+inductive types). \dnote{Need to say why we use Lan... like what is
+  does it give us informally?} We propose that
+the algebras of $G$ are isomorphic to the algebras of the left Kan extension of $G$:
+%
 \begin{conjecture}[Endofunctor algebras of Left Kan extensions]
 Given a type family $G : Set \rightarrow Set$ with a homotopy-initial algebra semantics $IAlg(G)$, the family of $Lan(G)$-endofunctor algberas is isomorphic to $IAlg(G)$.
 \end{conjecture}
-
+%
 If this conjecture holds, then the freer monad T over X would have T-algebras isomorphic to the initial algebras of X,
 this follows by chaining this conjecture with the statement of algebraic freeness.
 
-We would expect the formal statement of this conjecture to be provable in some appropriate container \cite{indexed containers} or generic levitated presentation \cite{levitation},
-which would allow us to connect the \mathbb{Lan F}-algebra of an endofunctor with the algebra of the underlying datatype \mathbb{F}.
+We would expect the formal statement of this conjecture to be provable
+in some appropriate container \cite{indexedcontainers}\dnoteF{say why} or generic levitated presentation \cite{levitation},
+which would allow us to connect the $\mathsf{Lan} \mathbb{F}$-algebra of an endofunctor with the algebra of the underlying datatype $\mathbb{F}$.
 
 \tnote{Fix reference}
 Another direction of future research is to construct an isomorphism between continuations and the fast type-aligned queues of Kiselyov, quotiented by their composition,
@@ -427,8 +447,8 @@ in {unitransport} we would need also some form of representation
 independence coming from parametricity for this to be actually
 efficient.
 
-\appendix
-\section{Appendix Title}
+%\appendix
+%\section{Appendix Title}
 
 This is the text of the appendix, if you need one.
 
