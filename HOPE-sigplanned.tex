@@ -207,7 +207,7 @@ set.
 \dnote{define graded monads briefly, probably abstractly in mathematics}
 
 Algebraic effects can be presented on top of a monadic interface, we provide this interface by implementing it using a free monad.
-The importance of this interface is that we can provide an interface,
+The importance of this is that we can provide an interface,
 which chains different operations together and allows us to give a
 correct interface.
 \dnote{this sentence uses the word interface three times!}
@@ -399,16 +399,25 @@ To extend the proofs from our current work to the quotient case we need to prove
 To verify that all the constructions preserve all equations. We note that by theorem 3.1 and 3.2 \cite{ncatlab} this result should follow in Homotopy type theory.
 The reason for this being that we need the ambient category to be locally small and complete with homotopy type theory we should be able to get all colimits.
 
-These lemmas apply only to the free monad with a forgetful functor $Mnd(C) \rightarrow Endo(C)$, we suggest that this definition should extend to $Mnd(C) \rightarrow (C,ob(C))$.
-We conjecture that the F-algebra of the left kan extension endofunctor for a quotient inductive type family is the underlying algebra as in the initial algebra semantics of the given type family.
-This should allow us to extend the isomorphism in terms of algebraic freeness to the freer construction.
-We would then expect the freer monad T over X to have T-algebras isomorphic to the algebras of X.
-We would expect the formal statement of this conjecture might be provable in some appropriate container \cite{indexed containers} or generic levitated presentation \cite{levitation},
-which would allow us to connect the F-algebra of a functor with the algebra of the underlying datatype.
+These lemmas apply only to the free monad with a forgetful functor $Mnd(C) \rightarrow Endo(C)$, we suggest a generalization that should extend these to the forgetful functor $Mnd(C) \rightarrow (C,ob(C))$.
+
+There is no obvious generalization, which would let us talk about algebras over an arbitrary $(C,ob(C))$, we thus take a type theoretic view and think what would we expect the isomorphism to involve.
+Semantics of a type family $G$ is thought as an initial object in some category $IAlg(G)$ corresponding to its algebraic description.
+Homotopy type theory generalizes this to quotients (and other more general higher inductive types).
+Every endofunctor also has an associated category of algebras, we propose that this category for left Kan extension of G, $Lan(G)$, considered as an endofunctor should
+be isomorphic to the category $IAlg(G)$.
+
+This should allow us to extend the isomorphism in the definition of algebraic freeness to the freer construction.
 
 \begin{conjecture}[Endofunctor algebras of Left Kan extensions]
 Given a type family $G : Set \rightarrow Set$ with a homotopy-initial algebra semantics $IAlg(G)$, the family of $Lan(G)$-endofunctor algberas is isomorphic to $IAlg(G)$.
 \end{conjecture}
+
+If this conjecture holds, then the freer monad T over X would have T-algebras isomorphic to the initial algebras of X,
+this follows by chaining this conjecture with the statement of algebraic freeness.
+
+We would expect the formal statement of this conjecture to be provable in some appropriate container \cite{indexed containers} or generic levitated presentation \cite{levitation},
+which would allow us to connect the \mathbb{Lan F}-algebra of an endofunctor with the algebra of the underlying datatype \mathbb{F}.
 
 Another direction of future research is to construct an isomorphism between continuations and the fast type-aligned queues of Kiselyov, quotiented by their composition,
 thus providing a more efficient implementation of effects without the overheads to reasoning this entails as we focus on semantic constructions instead of executable code, this is not our primary concern.
