@@ -77,37 +77,70 @@ We show how to use a single MaybeT transformer to achieve this, we also explore 
 % what matters first 2 pages can be longer
 \section{Motivation}
 
-Consider the following situation.  A compile writer is producing some
-semantics-preserving translations between intermediate languages. At
-some point in this transformation pipeline, information is lost, e.g.,
-typing information is erased when converting to an untyped core
-lanugage or byte code.  This necessitates that the compiled code has
-some error handling cases, for example:
+Consider the situation of a writing a verified compiler with a
+reference interpreter where initial typing information has been
+erased. This necessitates some error handling cases which are known
+to not occur (assuming that the typing procedure for this language is sound):
 %
-\begin{verbatim}
-pseudo code
-\end{verbatim}
+\begin{haskell}
+... UnOpNegate e -> case eval env e of
+                      Num n -> Num (- n)
+                      _     -> error "Impossible"
+\end{haskell}
 %
-This failure is intentionally non-recoverable. In Haskell, this
-idea is captured by the \texttt{MonadFail} type class which is
-used to desugar the \emph{do}-notation in the case of refutable
-patterns. For example
+The \texttt{error} expression here represents
+a failure side-effect that is intentionally non-recoverable; once it
+is evaluate failure prevents the rest of the interpretation.
 
-\dnote{Show translation}
+In Haskell, the above code pattern can be abstracted via
+the \emph{do}-notation and the use of
+the \texttt{MonadFail} type class which provides an operation
+\texttt{fail :: String -> m a} which is used to desugar pattern matches which may
+fail. In this style, the above code could be written as:
+%
+\begin{haskell}
+... UnOpNegate e -> do
+         Num n <- eval env e
+         return (Num (- n))
+\end{haskell}
+%
+Since the pattern \texttt{Num n} is `refutable' then this
+\emph{do}-expression desugars into:
+%
+\begin{haskell}
+  eval env e >>= (\v ->
+    case v of
+      Num n -> return (Num (- n))
+      _     -> fail "Incomplete pattern match")
+\end{haskell}
+%
+In this work, we capture the same idea but in the
+setting of \emph{algebraic effects}, extending algebraic
+effects to include a notion of (non-recoverable) failure
+as captured by \texttt{MonadFail}.
 
-In this work, we seek to capture the same idea but in the
-setting of \emph{algebraic effects}.
+Our development is formalised in dependent-type theory
+(we use Agda) and we consider here how to formalise
+the mathematical results which support the key
+constructions. As part of this, we contribute our own
+type theoretic rendering of free monads (based on a variation of
+\citet{freerm}'s `freer' monads) which is indexed by the effect
+operations captured within the computation tree describe by a free
+monad value. Furthermore, our approach yields
+a graded monad, which provides a way to reason about the compositional
+nature of effects with non-recoverable failure.
 
-One aims of the algebraic-effects approach
-is to allow the management of side effects to be
-\emph{extensible}, considering first the necessary
-effectful operations and their laws, rather than focussing on the underlying
-semantic structure as is common in the \emph{monad}-first approach.
-\emph{Monad transformers} can provide some modularity to the monad-first
-approach, but this needs a new type class instance for every
-combination of effects and this makes the implementation less
-flexible.
-\dnote{This is a very Haskell answer... is there something better here.}
+%One aim of the algebraic-effects approach
+%is to allow the management of side effects to be
+%\emph{extensible}, considering first the necessary
+%effectful operations and their laws, rather than focussing on the underlying
+%semantic structure as is common in the \emph{monad}-first approach.
+%\emph{Monad transformers} can provide some modularity to the monad-first
+%approach, but this needs a new type class instance for every
+%combination of effects and this makes the implementation less
+%flexible.
+
+%\dnote{This is a very Haskell answer... is there something better here.}
 
 % make clear our formalization verifies the laws but does not provide the syntactic do-solution
 
@@ -145,6 +178,7 @@ flexible.
 %
 %\section{Background}
 
+\iffalse
 \paragraph{Our results}
 
 We have produced an intermediate construction between the variations of Kiselyov in Agda.
@@ -154,6 +188,7 @@ We further describe how to extend these with failing pattern matching, for simpl
 TODO add short explanation of similarities and differences
 \dnote{Might be better to do the similarities and differences inline
   as we go.}
+\fi
 
 \section{Algebraic effects as (graded) monads in type theory}
 
@@ -286,10 +321,10 @@ from a terminal object $1$.
   For a category $\mathcal{C}$ with terminal object $1$
   then a \emph{failing monad} for endofunctor $T : \mathcal{C}
   \rightarrow \mathcal{C}$ is a monad with a natural transformation
-  $\mathit{mfail}_A : 1 \rightarrow T\ A$ such that for all $g : 1
+  $\mathit{fail}_A : 1 \rightarrow T\ A$ such that for all $g : 1
 \rightarrow T\ B$ then:
 $$
-\mu \circ T (g \circ !_A) \circ \mathit{mfail}_A = \mathit{mfail}_B
+\mu \circ T (g \circ !_A) \circ \mathit{fail}_A = \mathit{fail}_B
 $$
 \end{definition}
 
@@ -374,9 +409,9 @@ monad'', we characterise the category of \texttt{MonadFail} algebras.
 
   \tnote{this does not render correctly on my setup}
   \begin{equation}
-    \label{eq:mfail-compat}
+    \label{eq:fail-compat}
     \xymatrix@C=4em{
-      1 \ar[dr]_{h'} \ar[r]^-{\mathit{mfail}_A} &  T\ A \ar[d]^{h} \\
+      1 \ar[dr]_{h'} \ar[r]^-{\mathit{fail}_A} &  T\ A \ar[d]^{h} \\
       & A
       }
   \end{equation}
@@ -388,8 +423,8 @@ The free monad algebra $(T A, \mu_A)$ is a free failing monad algebra.
 \end{proposition}
 %
 \begin{proof}
-Equation~\ref{eq:mfail-compat} follows from the failing monad
-axiom with $h' = \mathit{mfail}_{T A}$.
+Equation~\ref{eq:fail-compat} follows from the failing monad
+axiom with $h' = \mathit{fail}_{T A}$.
 \dnote{show more of the proof? as a diagram?}
 \end{proof}
 
