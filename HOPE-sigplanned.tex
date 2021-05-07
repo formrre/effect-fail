@@ -101,7 +101,7 @@ to not occur (assuming that the typing procedure for this language is sound):
 %
 The \haskin{error} expression here represents
 a failure side-effect that is intentionally non-recoverable; once it
-is evaluate failure prevents the rest of the interpretation.
+is evaluated, failure prevents the rest of the interpretation.
 
 In Haskell, the above code pattern can be abstracted via
 the \emph{do}-notation and the use of
@@ -458,48 +458,50 @@ terminal maps.
 \section{Future directions}
 We have constructed the \haskin{Eff} monad in Agda and verified the various
 monad / graded monad laws. For practical purposes of reasoning there needs to be more than just a
-monadic structure.
-We want to reason about the local code using the eponymous algebraic
-laws. We would like to attach equations the handlers should satisfy to
-the monad.
-One solution for attaching equations to a datatype are Quotient Inductive Types \cite{altenkirch2016type}. We would like to use these for providing correct-by-contruction handlers,
+monadic structure:
+we want to reason about the code using the eponymous algebraic
+laws therefore we would like to attach to the monad the equations that
+the handlers should satisfy and thus provide correct-by-contruction handlers.
+One solution for attaching equations to a datatype are Quotient Inductive Types \cite{altenkirch2016type}.
 This should abstract away from the concrete choices when reasoning, yet force us to prove satisfiability of the algebriac equations by some handler.
-To extend the proofs from our current work to the quotient case we need to prove the type-theoretic formulation of algebraic freeness (discussed above) in order to prove that the free monad constructions preserve all
-equations. We note that algebraically-free monads are free, and all free monads are algbraically-free in particular categories~\cite{nlab:free_monad},
-this result should follow in homotopy type theory.
-The reason for this being that these proofs assume the ambient category to be
-locally small and complete, with homotopy type theory we should be able
-to get all colimits and right Kan extensions, which seem to be the used consequences of these assumptions.
+To extend the proofs from our current work to the quotient case, we need to prove the type-theoretic formulation of algebraic freeness (discussed above) in order to prove that the free monad constructions preserve all
+equations. Algebraically-free monads are free, and all
+free monads are algbraically-free in locally small and complete categories~\cite{nlab:free_monad},
+a result which should follow in (homotopy) type theory as we should
+have all colimits and right Kan extensions which are used in
+such proofs as consequences of these locall small and complete structure.
 
 These lemmas apply only to the free monad with resepect to a forgetful functor
-$Mnd(C) \rightarrow Endo(C)$, we suggest a generalization that should
-extend these to the forgetful functor $Mnd(C) \rightarrow
-(ob(C),C)$, where $(ob(C),C)$ is the category resulting from forgetting all the structure with respect to $Set \rightarrow Set$.
+$Mnd(\mathcal{C}) \rightarrow Endo(\mathcal{C})$. We suggest a
+generalization to the forgetful functor $Mnd(\mathcal{C}) \rightarrow
+[ob(\mathcal{C}),\mathcal{C}]$, where $[ob(\mathcal{C}),\mathcal{C}]$ is the category of functors mapping from
+the discrete category of $\mathcal{C}$, matching more closely the left
+Kan construction used by \haskin{Eff}. %resulting from forgetting all the structure with respect to $Set \rightarrow Set$.
 
-There is no obvious generalization, which would let us talk about algebras over an arbitrary $(ob(C),C)$, we thus take a type theoretic view to
+There is no obvious generalization, which would let us talk about algebras over an arbitrary $[ob(\mathcal{C}),\mathcal{C}]$, we thus take a type theoretic view to
 extend the isomorphism in the definition of algebraic freeness to the freer construction.
 
-The semantics of a type constructor $G$ is thought as an initial
-object in some category $Alg(G)$ corresponding to its algebraic description.
+The semantics of a type constructor $F$ is thought as an initial
+object in some category $Alg(F)$ corresponding to its algebraic description.
 Homotopy type theory generalizes this to quotient types (and other more general higher
 inductive types), thus we should be able to present F-algebras, including their equations, using quotient types.
-Informally left Kan extension, Lan(X), of a datatype X should give us an endofunctor, which just accumulates functions applied to it
+Informally left Kan extension, $Lan(F)$, of a datatype $F$ should give us an endofunctor, which just accumulates functions applied to it
 without actually applying them, postponing their interpretation.
 We propose that
-the algebras of $G$ are isomorphic to the algebras of the left Kan extension of $G$:
+the algebras of $F$ are isomorphic to the algebras of the left Kan extension of $F$:
 %
 \begin{conjecture}[Endofunctor algebras of Left Kan extensions]
-Given a type family $G : Set \rightarrow Set$ with a homotopy-initial algebra semantics $Alg(G)$, the family of $Lan(G)$-endofunctor algberas is isomorphic to $Alg(G)$.
+Given a type family $F : Set \rightarrow Set$ with a homotopy-initial algebra semantics $Alg(F)$, the family of $Lan(F)$-endofunctor algberas is isomorphic to $Alg(F)$.
 \end{conjecture}
 %
-If this conjecture holds, then the freer monad T over X would have T-algebras isomorphic to the initial algebras of X,
+If this conjecture holds, then the freer monad $T$ over $X$ would have $T$-algebras isomorphic to the initial algebras of $X$,
 this follows by chaining this conjecture with the statement of algebraic freeness.
 
 We would expect the formal statement of this conjecture to be provable
 in some appropriate container \cite{altenkirch2015indexed} or generic levitated presentation \cite{DBLP:conf/icfp/ChapmanDMM10},
-because this would allow us to connect the $\mathsf{Lan}(G)$-algebra of an endofunctor with the algebra of the underlying datatype $G$.
+because this would allow us to connect the $\mathsf{Lan}(F)$-algebra of an endofunctor with the algebra of the underlying datatype $F$.
 
-Another direction of future research is to construct an isomorphism between continuations and the fast type-aligned queues of Kiselyov, quotiented by their composition,
+Another direction of future research is to construct an isomorphism between continuations and the fast type-aligned queues of~\citet{ploeg2014reflection,freerm}, quotiented by their composition,
 thus providing a more efficient implementation of effects without the overheads to reasoning this entails as we focus on semantic constructions instead of executable code, this is not our primary concern.
 We would expect this to then transport by univalence, but as discussed
 in \cite{unitransport} we would need also some form of representation
