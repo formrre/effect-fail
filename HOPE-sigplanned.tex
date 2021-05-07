@@ -199,8 +199,8 @@ TODO add short explanation of similarities and differences
   as we go.}
 \fi
 
-\section{Algebraic effects as (graded) monads in type theory}
-\dnote{functor strength}
+\section{Underlying model for algebraic effects}
+%\dnote{functor strength}
 Algebraic effects in theory consist of a signature of operations and
 their equations. The collection of operations can be represented
 type theoretically by a parameteric data type $F$ combined with the free monad
@@ -300,7 +300,7 @@ handled:
 %
 \begin{agda}
 raise  : F a -> Eff [F] a
-handle : ((x : Set) -> F x -> x) -> Eff E a -> Eff (E - F) a
+handle : ($\forall$ x -> F x -> x) -> Eff E a -> Eff (E - F) a
 escape : Eff [] a -> a
 \end{agda}
 %
@@ -314,25 +314,25 @@ by these operations.
 
 In Haskell, if a \emph{do}-expression performs a pattern
 matching `bind' that may fail, then the monad being used
-must also have an instance of the \texttt{MonadFail} class:
+must also have an instance of the \haskin{MonadFail} class:
 %
 \begin{haskell}
 class MonadFail m where
   fail :: String -> m a
 \end{haskell}
 %
-where, for all monadic computations \texttt{x :: m a}:
+where, for all monadic computations \haskin{x :: m a}:
 %
 {\small{
 \begin{equation*}
-\hspace{-10em}\texttt{fail $>$$>$$=$ x} \;\; \equiv \;\; \texttt{fail}
+\hspace{-10em}\text{\haskin{fail}} >>= \text{\haskin{x}} \;\; \equiv \;\; \text{\haskin{fail}}
 \end{equation*}
 }}
 %
 i.e., failure is global and non-recoverable.
 
 We have given this a more abstract mathematical definition,
-ignoring the \texttt{String} aspect in favour of a map
+ignoring the \haskin{String} aspect in favour of a map
 from a terminal object $1$.
 %
 \begin{definition}[Failing monad]
@@ -346,15 +346,15 @@ $$
 $$
 \end{definition}
 
-If we attempt to give a \texttt{MonadFail} instance for the free
+If we attempt to give a \haskin{MonadFail} instance for the free
 monad, we get stuck immediately: the free monad, is the monad for
 which exactly the monad equations hold and nothing more, i.e.,
-not the extra \texttt{MonadFail} axiom above. Therefore, we seek
+not the extra \haskin{MonadFail} axiom above. Therefore, we seek
 to have both the benefits of the free monad structure for
 capturing computation trees (for the purposes of effect handling)
 but also the property of non-recoverable failure captured
-by \texttt{MonadFail}. The simplest construction to support the
-above law generally is provided by the ``\texttt{MaybeT}''
+by \haskin{MonadFail}. The simplest construction to support the
+above law generally is provided by the ``\haskin{MaybeT}''
 \emph{monad transformer}~\cite{transformerpub}, which
 in Haskell is typically defined as follows:
 %
@@ -362,22 +362,20 @@ in Haskell is typically defined as follows:
 newtype MaybeT m a = MaybeT (m (Maybe a))
 \end{haskell}
 %
-That is, a \texttt{MaybeT} is a monad homomorphism, mapping
+That is, a \haskin{MaybeT} is a monad homomorphism, mapping
 $M -$ to $M (1 + -)$.
 %
 %MaybeT is the monad transformer, i.e. a transformation ${T A : Set} -> Monad T -> Maybe T A -> Monad S$.
 %$MaybeT m x = m (Maybe x)$
 %
-We can think of \texttt{MaybeT} as an extension by an arbitrary,
+We can think of \haskin{MaybeT} as an extension by an arbitrary,
 single option failure case. Applying this to the free monad
-structure yields a lawful instance of \texttt{MonadFail}:
+structure yields a lawful instance of \haskin{MonadFail}:
 %
 \begin{haskell}
   instance MonadFail (MaybeT m a) where
     fail _ = MaybeT (return Nothing)
 \end{haskell}
-%
-\dnote{verify equation?}
 %
 %especially in the strucutre of
 %a Free monad as Monad is Pure and fixed point of a functor with this identity case.
@@ -399,18 +397,19 @@ A monad $T$ is \emph{algebraically free on an endofunctor $F$} is
 the category of $T$-algebras (monad algebras) is isomorphic to the category of
 $F$-algebras. An algebraically-free monad is itself a free monad.
 Therefore, in order to consider the notion of a ``free failing
-monad'', we characterise the category of \texttt{MonadFail} algebras.
+monad'', we characterise the category of \haskin{MonadFail} algebras.
 
-\begin{definition}
-  For a monad $T : \mathcal{C} \rightarrow \mathcal{C}$, the category of monad algebras if the category
+\begin{definition}[Monad algebras]
+  For a monad on $T : \mathcal{C} \rightarrow \mathcal{C}$, the category of monad algebras if the category
   of $T$-algebras which are compatible with the monad operations. That
   is $T\textsf{Alg}_{\mathsf{mnd}}$ is a category with objects as
-  pairs $(A, h : A \rightarrow T\ A)$  where $A$ and $h$ are objects
-  and morphisms of $\mathcal{C}$ respectively satisfying compatibility
-  with the monad operations:
-  %
-  \dnote{Space for diagrams? or just summarise as equation}
+  pairs $(A, h)$ where $A \in |\mathcal{C}|$ and $h \in \mathcal{C}(T\
+  A, A)$ satisfying compatibility
+  with the monad operations: $h \circ \eta = id$ and $h \circ \mu = h
+  \circ T h$.
 \end{definition}
+
+We extend this idea to to algebras of failing monads.
 
 \begin{definition}[Failing monad algebras]
   For a %terminal object $1$ and
@@ -421,12 +420,10 @@ monad'', we characterise the category of \texttt{MonadFail} algebras.
   $h \in \mathcal{C}(T A, A)$ is compatible with the monad operations
   and there exists a morphism $h' : 1 \rightarrow A$ such that:
   %
-
-  \tnote{this does not render correctly on my setup}
   \begin{equation}
     \label{eq:fail-compat}
-    \xymatrix@C=4em{
-      1 \ar[dr]_{h'} \ar[r]^-{\mathit{fail}_A} &  T\ A \ar[d]^{h} \\
+    \xymatrix@R=1em@C=4em{
+      1 \ar[dr]_{h'} \ar[r]^-{\mathit{fail}_A} &  T\ A \ar[d]^-{h} \\
       & A
       }
   \end{equation}
@@ -439,12 +436,13 @@ The free monad algebra $(T A, \mu_A)$ is a free failing monad algebra.
 %
 \begin{proof}
 Equation~\ref{eq:fail-compat} follows from the failing monad
-axiom with $h' = \mathit{fail}_{T A}$.
-\dnote{show more of the proof? as a diagram?}
+axiom with $h' = \mathit{fail}_{T A}$ and by universality of
+terminal maps.
+%\dnote{show more of the proof? as a diagram?}
 \end{proof}
 
 \section{Future directions}
-We have constructed the \texttt{Eff} monad in Agda and verified the various
+We have constructed the \haskin{Eff} monad in Agda and verified the various
 monad / graded monad laws. For practical purposes of reasoning there needs to be more than just a
 monadic structure.
 We want to reason about the local code using the eponymous algebraic
