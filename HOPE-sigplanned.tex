@@ -393,7 +393,7 @@ we have to modify the notion of handling. Thus, we state a different form of ini
 $ (F\:A \rightarrow A) \rightarrow (\mathsf{Free}\:F\:A \rightarrow A) $, the correct handling for free \haskin{MonadFail} is $ (F\:A \rightarrow A) \rightarrow \text{\haskin{EffectFail}}\:F\:A \rightarrow \text{\haskin{Maybe}}\:A$.
 As much as effects are inspired by initiality, we provide a type-theoretic
 motivation
-for our definition. To provide handling of effectfail, we interpret the results and embed them into \haskin{Maybe} and propagate the underlying failure.
+for our definition. To provide handling of \haskin{EffectFail}, we interpret the results and embed them into \haskin{Maybe} and propagate the underlying failure.
 Thus this is initiality not for \haskin{EffectFail}, but for effect itself after expanding the \haskin{MaybeT} monad transformer.
 This should be correct not by some appeal to category theory, as initiality is normally stated, but by appealing to the API we would expect from our system.
 To run \haskin{EffectFail} we either want to extract the underlying
