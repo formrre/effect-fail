@@ -333,9 +333,9 @@ where, for all monadic computations \haskin{x :: m a}:
 %
 i.e., failure is global and non-recoverable.
 
-We have given this a more abstract mathematical definition,
+We give an abstract mathematical definition,
 ignoring the \haskin{String} aspect in favour of a map
-from a terminal object $1$.
+from the terminal object $1$.
 %
 \begin{definition}[Failing monad]
   For a category $\mathcal{C}$ with terminal object $1$
@@ -347,7 +347,7 @@ $$
 \mu \circ T (g \circ !_A) \circ \mathit{fail}_A = \mathit{fail}_B
 $$
 \end{definition}
-
+%
 If we attempt to give a \haskin{MonadFail} instance for the free
 monad, we get stuck immediately: the free monad, is the monad for
 which exactly the monad equations hold and nothing more, i.e.,
@@ -357,8 +357,8 @@ capturing computation trees (for the purposes of effect handling)
 but also the property of non-recoverable failure captured
 by \haskin{MonadFail}. The simplest construction to support the
 above law generally is provided by the ``\haskin{MaybeT}''
-\emph{monad transformer}~\cite{transformerpub}, which
-in Haskell is typically defined as follows:
+\emph{monad transformer}~\cite{transformerpub},
+in Haskell defined as:
 %
 \begin{haskell}
 newtype MaybeT m a = MaybeT (m (Maybe a))
@@ -371,21 +371,22 @@ $M -$ to $M (1 + -)$.
 %$MaybeT m x = m (Maybe x)$
 %
 We can think of \haskin{MaybeT} as an extension by an arbitrary,
-single option failure case. Applying this to the free monad
-structure yields a lawful instance of \haskin{MonadFail}:
+single option failure case. The \haskin{MaybeT} transformer
+gives a lawful instance of \haskin{MonadFail} for all monads:
 %
 \begin{haskell}
-  instance MonadFail (MaybeT m a) where
+  instance Monad m => MonadFail (MaybeT m a) where
     fail _ = MaybeT (return Nothing)
 \end{haskell}
 %
 %especially in the strucutre of
 %a Free monad as Monad is Pure and fixed point of a functor with this identity case.
-
-However, we still require \emph{freeness} of this structure in order
+We can thus apply this idea to our \haskin{Eff} construction,
+yielding a failing monad.
+However, we still require \emph{freeness} of the \haskin{MaybeT Eff} in order
 to yield a suitable semantic core for handling algebraic effects
-(augmented with non-recoverable failure). We therefore ask,
-\emph{is the above the ``free MonadFail'' structure?}.
+(augmented with non-recoverable failure). We thus ask,
+\emph{is \haskin{MaybeT Eff} the free failing monad?}.
 
 We have to modify handling, we state a different form of initiality, as much as effects are inspired by initiality, we provide a type-theoretic
 motivation
