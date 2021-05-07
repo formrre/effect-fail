@@ -300,7 +300,7 @@ handled:
 %
 \begin{agda}
 raise  : F a -> Eff [F] a
-handle : ((x : Set) -> F x -> x) -> Eff E a -> Eff (E - F) a
+handle : ($\forall$ x -> F x -> x) -> Eff E a -> Eff (E - F) a
 escape : Eff [] a -> a
 \end{agda}
 %
