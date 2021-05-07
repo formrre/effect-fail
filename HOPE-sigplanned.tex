@@ -387,11 +387,14 @@ to yield a suitable semantic core for handling algebraic effects
 (augmented with non-recoverable failure). We therefore ask,
 \emph{is the above the ``free MonadFail'' structure?}.
 
-We have to modify handling, we state a different form of initiality, as much as effects are inspired by initiality, we provide a type-theoretic
+We have to modify handling, we state a different form of initiality, while the initiality can be thought of as a principle,
+$ (F\:A \rightarrow A) \rightarrow (Free\:F\:A \rightarrow A) $, the correct handling for free MonadFail is $ (F\:A \rightarrow A) \rightarrow FreeFail\:F\:A \rightarrow Maybe\:A$
+As much as effects are inspired by initiality, we provide a type-theoretic
 motivation
 for our definition, to provide handling of effectfail, we interpret the results and embed them into Maybe and propagate the underlying failure.
+Thus this is initiality not for \emph{EffectFail}, but for effect itself after expanding the \emph{MaybeT} monad transformer.
 This should be correct not by some appeal to category theory as initiality is normally stated, but by appealing to the API we would expect from our system.
-We would excpect this API to propagate pattern matching failure. To run EffectFail we either want to extract the underlying result or propagate the failure of underlying Pure result.
+To run EffectFail we either want to extract the underlying result or propagate the failure of underlying Pure result.
 
 \paragraph{Algebraic freeness}
 
