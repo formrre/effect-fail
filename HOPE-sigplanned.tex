@@ -294,24 +294,23 @@ $\eta : \mathsf{Id} \rightarrow M []$ and $\mu : M e \circ M f \rightarrow M (e 
 % \paragraph{Handling effects}
 
 \noindent
-The graded monad construction suggests a
-set of combinators for raising effects,
-handling effects and `escaping' from
-an effectful computation once all effects have been
-handled:
+The graded monad construction suggests combinators for raising and
+handling effects where grades give an account of what
+needs handling (where \haskin{E - F} deletes \haskin{F} from the list
+\haskin{E}):
 %
 \begin{agda}
 raise  : F a -> Eff [F] a
 handle : ($\forall$ x -> F x -> x) -> Eff E a -> Eff (E - F) a
-escape : Eff [] a -> a
 \end{agda}
 %
-where \haskin{E - F} deletes \haskin{F} from the list
-of effects. Note the grades give an account of what
-effects needs handling, manipulated and leveraged
-by these operations.
-
-
+We can also `run' a computation once all effects are
+handled:
+%
+\begin{agda}
+run : Eff [] a -> a
+\end{agda}
+%
 \section{Leveraging MaybeT and MonadFail}
 
 In Haskell, if a \emph{do}-expression performs a pattern
