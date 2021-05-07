@@ -394,7 +394,7 @@ $ (F\:A \rightarrow A) \rightarrow (\mathsf{Free}\:F\:A \rightarrow A) $, the co
 As much as effects are inspired by initiality, we provide a type-theoretic
 motivation
 for our definition. To provide handling of \haskin{EffectFail}, we interpret the results and embed them into \haskin{Maybe} and propagate the underlying failure.
-Thus this is initiality not for \haskin{EffectFail}, but for effect itself after expanding the \haskin{MaybeT} monad transformer.
+Thus this is initiality not for \haskin{EffectFail}, but for thhe \haskin{Effect} itself after expanding the \haskin{MaybeT} monad transformer.
 This should be correct not by some appeal to category theory, as initiality is normally stated, but by appealing to the API we would expect from our system.
 To run \haskin{EffectFail} we either want to extract the underlying
 result or propagate the failure of an underlying \haskin{Pure} result.
