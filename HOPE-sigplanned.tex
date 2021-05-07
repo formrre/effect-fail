@@ -226,9 +226,10 @@ The \haskin{Impure} constructor captures effectful operations
 described by the type constructor \haskin{f}. Thus the
 effect operations $f$ must be deteremined globally for the computation.
 
-We propose a more compositional generalisation, allowing
+We use a more compositional generalisation, allowing
 subcomputations to use different type constructors to capture their effect
 operations. A type index gathers these various type constructors as a list.
+This is an intermediate design between the constructions \haskin{FFree} and \haskin{Eff} in~\citet{freerm}.
 In Agda, we define this:
 %
 \begin{agda}[mathescape]
