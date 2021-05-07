@@ -273,9 +273,9 @@ This gives the following variants of graded monad operations, $\eta : 1 \rightar
   merge up in the first part of section 2?}
   We review the construction of Effect monad, to illustrate what issues pop up, while trying to make this into a admissible construction in Agda.
   In haskell, these constructions can be done easily using the general datatypes, but they included datatype level fixed points in full.
-  In agda we can take 2 possible views of these constructions. We could go through the containers and construct a fixed point of containers as in \cite{?}.
-  Or we could fuse the left kan extension construction into the effect monad and observe that the result is strictly positive.
-  This means we do not have to provide a container construction for the underlying work as in \cite{?}. This works by realizing that the instantiation of F in the recursion to Lan of an arbitrary datatype is strictly positive without a recourse to containers.
+  In agda we can take 2 possible views of these constructions. We could go through the containers and construct a fixed point of containers as in \cite{?} 
+  or we could fuse the left kan extension construction into the effect monad.
+  This means we do not have to provide a container construction for the underlying work as in \cite{?}.
   We pick to do a halfway point between the constructions in Kyseliov, we do not use the optimized version, but we use the idea of effects should belong to a set.
 
 \paragraph{Handling effects}
@@ -506,6 +506,7 @@ efficient.
 
 % The 'abbrvnat' bibliography style is recommended.
 
+\bibliographystyle{abbrvnat}
 \bibliography{references}
 
 \end{document}
