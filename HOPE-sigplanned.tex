@@ -396,32 +396,34 @@ We would excpect this API to propagate pattern matching failure. To run EffectFa
 
 \paragraph{Algebraic freeness}
 
-A monad $T$ is \emph{algebraically free on an endofunctor $F$} is
+A monad $T$ is \emph{algebraically free on an endofunctor $F$} if
 the category of $T$-algebras (monad algebras) is isomorphic to the category of
 $F$-algebras. An algebraically-free monad is itself a free monad~\cite{nlab:free_monad,kelly_1980}.
-Therefore, in order to consider the notion of a ``free failing
-monad'', we characterise the category of \haskin{MonadFail} algebras.
+Thus, to consider the notion of a ``free failing
+monad'', we characterise the category of failing monad algebras.
 
-\begin{definition}[Monad algebras]
-  For a monad on $T : \mathcal{C} \rightarrow \mathcal{C}$, the category of monad algebras if the category
-  of $T$-algebras which are compatible with the monad operations. That
-  is $T\textsf{Alg}_{\mathsf{mnd}}$ is a category with objects as
-  pairs $(A, h)$ where $A \in |\mathcal{C}|$ and $h \in \mathcal{C}(T\
-  A, A)$ satisfying compatibility
-  with the monad operations: $h \circ \eta = id$ and $h \circ \mu = h
-  \circ T h$.
-\end{definition}
+% \begin{definition}[Monad algebras]
+%   For a monad on $T : \mathcal{C} \rightarrow \mathcal{C}$, the category of monad algebras if the category
+%   of $T$-algebras which are compatible with the monad operations. That
+%   is $T\textsf{Alg}_{\mathsf{mnd}}$ is a category with objects as
+%   pairs $(A, h)$ where $A \in |\mathcal{C}|$ and $h \in \mathcal{C}(T\
+%   A, A)$ satisfying compatibility
+%   with the monad operations: $h \circ \eta = id$ and $h \circ \mu = h
+%   \circ T h$.
+% \end{definition}
 
-We extend this idea to to algebras of failing monads.
+%We extend this idea to to algebras of failing monads.
 
 \begin{definition}[Failing monad algebras]
   For a %terminal object $1$ and
   failing monad $T : \mathcal{C} \rightarrow \mathcal{C}$, the
   category of its algebras
-  $T\textsf{Alg}_{\mathsf{mndFail}}$ is a category of monad algebras, with objects
-  $(A, h)$ where
-  $h \in \mathcal{C}(T A, A)$ is compatible with the monad operations
-  and there exists a morphism $h' : 1 \rightarrow A$ such that:
+  $T\textsf{Alg}_{\mathsf{mndFail}}$ is a category of monad algebras, i.e., with objects
+  $(A, h)$ where $A \in |\mathcal{C}|$ and
+  $h \in \mathcal{C}(T A, A)$ compatible with the monad operations:
+  $h \circ \eta = id$ and $h \circ \mu = h
+  \circ T h$, and furthermore
+  there exists a morphism $h' : 1 \rightarrow A$ such that:
   %
 \begin{equation}
 \label{eq:fail-compat}
