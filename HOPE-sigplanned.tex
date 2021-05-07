@@ -454,7 +454,7 @@ monadic structure.
 We want to reason about the local code using the eponymous algebraic
 laws. We would like to attach equations the handlers should satisfy to
 the monad.
-One solution for attaching equations to a datatype are Quotient Inductive Types~\cite{altenkirch2016type}. We would like to use these for providing correct-by-contruction handlers,
+One solution for attaching equations to a datatype are Quotient Inductive Types \cite{altenkirch2016type}. We would like to use these for providing correct-by-contruction handlers,
 This should abstract away from the concrete choices when reasoning, yet force us to prove satisfiability of the algebriac equations by some handler.
 To extend the proofs from our current work to the quotient case we need to prove the type-theoretic formulation of algebraic freeness (discussed above) in order to prove that the free monad constructions preserve all
 equations. We note that algebraically-free monads are free, and all free monads are algbraically-free in particular categories~\cite{nlab:free_monad},
