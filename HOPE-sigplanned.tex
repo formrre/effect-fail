@@ -454,15 +454,13 @@ One solution for attaching equations to a datatype are Quotient Inductive Types!
 This should abstract away from the concrete choices when reasoning, yet force us to prove satisfiability of the algebriac equations by some handler.
 To extend the proofs from our current work to the quotient case we need to prove a type-theoretic formulation of algebraic freeness \cite{ncatlab}.
 Algebraic freeness should let us verify that the free monad constructions preserve all
-equations. We note that by theorems 3.1 and 3.2 \cite{ncatlab} this result should follow in homotopy type theory.
-The reason for this being that we need the ambient category to be
-locally small and complete with homotopy type theory we should be able
-to get all colimits.\dnoteF{Flip this around and explain the result of
-  theorem 3.1/3.2 then just cite the ncatlab. As it is it comes in a
-  hard to understand order. Perhaps even just state these results so
-  it's easier to understand the bit coming up.}
+equations. We note that algebraically-free monads are free, and all free monads are algbraically-free in particular categories \cite{ncatlab},
+this result should follow in homotopy type theory.
+The reason for this being that these proofs assume the ambient category to be
+locally small and complete, with homotopy type theory we should be able
+to get all colimits and right Kan extensions, which seem to be the used consequences of these assumptions.
 
-These lemmas apply only to the free monad with a forgetful functor
+These lemmas apply only to the free monad with resepect to a forgetful functor
 $Mnd(C) \rightarrow Endo(C)$, we suggest a generalization that should
 extend these to the forgetful functor $Mnd(C) \rightarrow
 (ob(C),C)$, where $(ob(C),C)$ is the category resulting from forgetting all the structure with respect to $Set \rightarrow Set$.
@@ -472,9 +470,9 @@ extend the isomorphism in the definition of algebraic freeness to the freer cons
 
 The semantics of a type constructor $G$ is thought as an initial
 object in some category $Alg(G)$ corresponding to its algebraic description.
-Homotopy type theory generalizes this to quotient types\dnoteF{explain
-  what this provides a bit more} (and other more general higher
-inductive types). Informally left Kan extension, Lan(X), of a datatype X should give us an endofunctor, which just accumulates functions applied to it
+Homotopy type theory generalizes this to quotient types (and other more general higher
+inductive types), thus we should be able to present F-algebras, including their equations, using quotient types.
+Informally left Kan extension, Lan(X), of a datatype X should give us an endofunctor, which just accumulates functions applied to it
 without actually applying them postponing their interpretation.
 We propose that
 the algebras of $G$ are isomorphic to the algebras of the left Kan extension of $G$:
