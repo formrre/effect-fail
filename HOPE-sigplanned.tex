@@ -399,16 +399,17 @@ $F$-algebras. An algebraically-free monad is itself a free monad.
 Therefore, in order to consider the notion of a ``free failing
 monad'', we characterise the category of \haskin{MonadFail} algebras.
 
-\begin{definition}
-  For a monad $T : \mathcal{C} \rightarrow \mathcal{C}$, the category of monad algebras if the category
+\begin{definition}[Monad algebras]
+  For a monad on $T : \mathcal{C} \rightarrow \mathcal{C}$, the category of monad algebras if the category
   of $T$-algebras which are compatible with the monad operations. That
   is $T\textsf{Alg}_{\mathsf{mnd}}$ is a category with objects as
-  pairs $(A, h : A \rightarrow T\ A)$  where $A$ and $h$ are objects
-  and morphisms of $\mathcal{C}$ respectively satisfying compatibility
-  with the monad operations:
-  %
-  \dnote{Space for diagrams? or just summarise as equation}
+  pairs $(A, h)$ where $A \in |\mathcal{C}|$ and $h \in \mathcal{C}(T\
+  A, A)$ satisfying compatibility
+  with the monad operations: $h \circ \eta = id$ and $h \circ \mu = h
+  \circ T h$.
 \end{definition}
+
+We extend this idea to to algebras of failing monads.
 
 \begin{definition}[Failing monad algebras]
   For a %terminal object $1$ and
@@ -419,12 +420,10 @@ monad'', we characterise the category of \haskin{MonadFail} algebras.
   $h \in \mathcal{C}(T A, A)$ is compatible with the monad operations
   and there exists a morphism $h' : 1 \rightarrow A$ such that:
   %
-
-  \tnote{this does not render correctly on my setup}
   \begin{equation}
     \label{eq:fail-compat}
-    \xymatrix@C=4em{
-      1 \ar[dr]_{h'} \ar[r]^-{\mathit{fail}_A} &  T\ A \ar[d]^{h} \\
+    \xymatrix@R=1em@C=4em{
+      1 \ar[dr]_{h'} \ar[r]^-{\mathit{fail}_A} &  T\ A \ar[d]^-{h} \\
       & A
       }
   \end{equation}
@@ -437,8 +436,9 @@ The free monad algebra $(T A, \mu_A)$ is a free failing monad algebra.
 %
 \begin{proof}
 Equation~\ref{eq:fail-compat} follows from the failing monad
-axiom with $h' = \mathit{fail}_{T A}$.
-\dnote{show more of the proof? as a diagram?}
+axiom with $h' = \mathit{fail}_{T A}$ and by universality of
+terminal maps.
+%\dnote{show more of the proof? as a diagram?}
 \end{proof}
 
 \section{Future directions}
