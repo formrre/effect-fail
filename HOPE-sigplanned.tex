@@ -388,14 +388,16 @@ to yield a suitable semantic core for handling algebraic effects
 (augmented with non-recoverable failure). We call this constrcution \haskin{EffectFail}. We thus ask,
 \emph{is \haskin{EffectFail} the free failing monad?}.
 
-We have to modify handling, we state a different form of initiality, while the initiality can be thought of as a principle,
-$ (F\:A \rightarrow A) \rightarrow (Free\:F\:A \rightarrow A) $, the correct handling for free MonadFail is $ (F\:A \rightarrow A) \rightarrow EffectFail\:F\:A \rightarrow Maybe\:A$.
+To accomodate the failure case,
+we have to modify the notion of handling. Thus, we state a different form of initiality. While the initiality can be thought of as a principle,
+$ (F\:A \rightarrow A) \rightarrow (\mathsf{Free}\:F\:A \rightarrow A) $, the correct handling for free \haskin{MonadFail} is $ (F\:A \rightarrow A) \rightarrow \text{\haskin{EffectFail}}\:F\:A \rightarrow \text{\haskin{Maybe}}\:A$.
 As much as effects are inspired by initiality, we provide a type-theoretic
 motivation
-for our definition, to provide handling of effectfail, we interpret the results and embed them into Maybe and propagate the underlying failure.
-Thus this is initiality not for \emph{EffectFail}, but for effect itself after expanding the \emph{MaybeT} monad transformer.
-This should be correct not by some appeal to category theory as initiality is normally stated, but by appealing to the API we would expect from our system.
-To run EffectFail we either want to extract the underlying result or propagate the failure of underlying Pure result.
+for our definition. To provide handling of effectfail, we interpret the results and embed them into \haskin{Maybe} and propagate the underlying failure.
+Thus this is initiality not for \haskin{EffectFail}, but for effect itself after expanding the \haskin{MaybeT} monad transformer.
+This should be correct not by some appeal to category theory, as initiality is normally stated, but by appealing to the API we would expect from our system.
+To run \haskin{EffectFail} we either want to extract the underlying
+result or propagate the failure of an underlying \haskin{Pure} result.
 
 \paragraph{Algebraic freeness}
 
@@ -457,6 +459,7 @@ axiom with $h' = \mathit{fail}_{T A}$ and by universality of
 terminal maps.
 %\dnote{show more of the proof? as a diagram?}
 \end{proof}
+%
 
 \section{Future directions}
 We have constructed the \haskin{Eff} monad in Agda and verified the various
@@ -501,9 +504,8 @@ Given a type family $F : Set \rightarrow Set$ with a homotopy-initial algebra se
 %
 If this conjecture holds, then the `freer' monad $T$ over $X$ would have $T$-algebras isomorphic to the initial algebras of $X$.
 This follows by chaining this conjecture with the statement of algebraic freeness.
-
-We would expect the formal statement of this conjecture to be provable
-in some appropriate container \cite{altenkirch2015indexed} or generic levitated presentation \cite{DBLP:conf/icfp/ChapmanDMM10},
+We expect the formal statement of this conjecture to be provable
+with some appropriate container \cite{altenkirch2015indexed} or generic levitated presentation \cite{DBLP:conf/icfp/ChapmanDMM10},
 because this would allow us to connect the $\mathsf{Lan}(F)$-algebra of an endofunctor with the algebra of the underlying datatype $F$.
 
 Another direction of future research is to construct an isomorphism between continuations and the fast type-aligned queues of~\citet{ploeg2014reflection,freerm}, quotiented by their composition,
