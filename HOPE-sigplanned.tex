@@ -254,31 +254,17 @@ set.
 
 \paragraph{Algebraic effects as monads and graded monads}
 
-\dnote{define graded monads briefly, probably abstractly in mathematics}
 Monad on endofunctor $M$, consists of two natural transformations,
 return, $\eta : 1 \rightarrow M$, and join, $\mu : M \circ M \rightarrow M$.
-Graded monad consists of natural transformation, where M are annotated by the elements of a monoid, return being annotated by unit of the monoid
+Graded monad consists of natural transformations, where Ms are annotated by the elements of a monoid, return being annotated by unit of the monoid
 and join annotated by the multiplication of elements annotating the parts of composition.
+
 Algebraic effects can be presented on top of a monadic interface, we provide this interface by implementing it using a free monad.
 The purpose of this is the ability to chain different operations abstractly, postponing the concrete implementation until the full specification is provided.
 
-\dnote{merge in how the graded monad looks briefly}
-$\eta : 1 \rightarrow M []$ and $\mu : M e \circ M f \rightarrow M (e +\!\!\!+ f)$
-
 For graded monads this allows us to do an interface, which combines
 different effect sets, by representing them as lists.
-
-%\subsection{Graded monad proofs}
-\dnote{MERGE UP - keep high-level}
-We grade monads to allow to combining the effect sets and thus being able to refer to only subcomputations in the programs and proofs.
-We do this by describing a reindexing operation, which combines sets and allows us to refer to distinct effects with same names.
-We need a way to reindex the effect set to embed the left effect set
-into a list.
-\dnote{the following sounds like it should go above in the definition
-  of graded monads / the instance we are defining here.}
-We note that the list of effects is itself a monoid and we grade by it. Graded unit, is the unit of our monad but for empty lists.
-To produce graded bind, we append the 2 lists of effects and combine them.
-
+This gives the following variants of graded monad operations, $\eta : 1 \rightarrow M []$ and $\mu : M e \circ M f \rightarrow M (e +\!\!\!+ f)$.
 
 \subsection{Effect monad construction}
 
@@ -401,9 +387,6 @@ to yield a suitable semantic core for handling algebraic effects
 (augmented with non-recoverable failure). We therefore ask,
 \emph{is the above the ``free MonadFail'' structure?}.
 
-\dnote{merge in the next part}
-
-\subsection{Handling EffectFail}
 We have to modify handling, we state a different form of initiality, as much as effects are inspired by initiality, we provide a type-theoretic
 motivation
 for our definition, to provide handling of effectfail, we interpret the results and embed them into Maybe and propagate the underlying failure.
@@ -462,18 +445,16 @@ axiom with $h' = \mathit{fail}_{T A}$.
 
 \section{Future directions}
 We have constructed the \texttt{Eff} monad in Agda and verified the various
-monad / graded monad laws. For practical purposes there needs to be more than just a
-monadic structure.{\dnoteF{Explain what practical purposes.}}
+monad / graded monad laws. For practical purposes of reasoning there needs to be more than just a
+monadic structure.
 We want to reason about the local code using the eponymous algebraic
 laws. We would like to attach equations the handlers should satisfy to
-the monad.{\dnoteF{Not sure of the flow here. Is the stuff
-    about QITs meant to be the solution to this?}}
-There are multiple interesting directions to take this in.
-We would also like to use Quotient Inductive Types~\cite{altenkirch2016type} to provide a view of operations for reasoning and correct-by-construction definition of handlers,
-which abstracts away from the concrete choices when reasoning, yet forces us to prove satisfiability of the algebriac equations by some handler.
-To extend the proofs from our current work to the quotient case we need to prove a type-theoretic formulation of algebraic freedom \cite{ncatlab}.
-To verify that all the constructions preserve all
-equations.\dnoteF{Not a sentence} We note that by theorem 3.1 and 3.2 \cite{ncatlab} this result should follow in homotopy type theory.
+the monad.
+One solution for attaching equations to a datatype are Quotient Inductive Types!\cite{altenkirch2016type} , we would like to use these for providing correct-by-contruction handlers,
+This should abstract away from the concrete choices when reasoning, yet force us to prove satisfiability of the algebriac equations by some handler.
+To extend the proofs from our current work to the quotient case we need to prove a type-theoretic formulation of algebraic freeness \cite{ncatlab}.
+Algebraic freeness should let us verify that the free monad constructions preserve all
+equations. We note that by theorems 3.1 and 3.2 \cite{ncatlab} this result should follow in homotopy type theory.
 The reason for this being that we need the ambient category to be
 locally small and complete with homotopy type theory we should be able
 to get all colimits.\dnoteF{Flip this around and explain the result of
@@ -484,29 +465,30 @@ to get all colimits.\dnoteF{Flip this around and explain the result of
 These lemmas apply only to the free monad with a forgetful functor
 $Mnd(C) \rightarrow Endo(C)$, we suggest a generalization that should
 extend these to the forgetful functor $Mnd(C) \rightarrow
-(C,ob(C))$.\dnote{What is thing on the right of the arrow? Needs explaining.}
+(ob(C),C)$, where $(ob(C),C)$ is the category resulting from forgetting all the structure with respect to $Set \rightarrow Set$.
 
-There is no obvious generalization, which would let us talk about algebras over an arbitrary $(C,ob(C))$, we thus take a type theoretic view to
+There is no obvious generalization, which would let us talk about algebras over an arbitrary $(ob(C),C)$, we thus take a type theoretic view to
 extend the isomorphism in the definition of algebraic freeness to the freer construction.
 
 The semantics of a type constructor $G$ is thought as an initial
-object in some category $IAlg(G)$\dnoteF{Why not $Alg(G)$?} corresponding to its algebraic description.
+object in some category $Alg(G)$ corresponding to its algebraic description.
 Homotopy type theory generalizes this to quotient types\dnoteF{explain
   what this provides a bit more} (and other more general higher
-inductive types). \dnote{Need to say why we use Lan... like what is
-  does it give us informally?} We propose that
+inductive types). Informally left Kan extension, Lan(X), of a datatype X should give us an endofunctor, which just accumulates functions applied to it
+without actually applying them postponing their interpretation.
+We propose that
 the algebras of $G$ are isomorphic to the algebras of the left Kan extension of $G$:
 %
 \begin{conjecture}[Endofunctor algebras of Left Kan extensions]
-Given a type family $G : Set \rightarrow Set$ with a homotopy-initial algebra semantics $IAlg(G)$, the family of $Lan(G)$-endofunctor algberas is isomorphic to $IAlg(G)$.
+Given a type family $G : Set \rightarrow Set$ with a homotopy-initial algebra semantics $Alg(G)$, the family of $Lan(G)$-endofunctor algberas is isomorphic to $Alg(G)$.
 \end{conjecture}
 %
 If this conjecture holds, then the freer monad T over X would have T-algebras isomorphic to the initial algebras of X,
 this follows by chaining this conjecture with the statement of algebraic freeness.
 
 We would expect the formal statement of this conjecture to be provable
-in some appropriate container \cite{indexedcontainers}\dnoteF{say why} or generic levitated presentation \cite{levitation},
-which would allow us to connect the $\mathsf{Lan}(G)$-algebra of an endofunctor with the algebra of the underlying datatype $G$.
+in some appropriate container \cite{indexedcontainers} or generic levitated presentation \cite{levitation},
+because this would allow us to connect the $\mathsf{Lan}(G)$-algebra of an endofunctor with the algebra of the underlying datatype $G$.
 
 
 \tnote{Fix reference}
