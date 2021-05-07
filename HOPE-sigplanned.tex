@@ -294,24 +294,23 @@ $\eta : \mathsf{Id} \rightarrow M []$ and $\mu : M e \circ M f \rightarrow M (e 
 % \paragraph{Handling effects}
 
 \noindent
-The graded monad construction suggests a
-set of combinators for raising effects,
-handling effects and `escaping' from
-an effectful computation once all effects have been
-handled:
+The graded monad construction suggests combinators for raising and
+handling effects where grades give an account of what
+needs handling (where \haskin{E - F} deletes \haskin{F} from the list
+\haskin{E}):
 %
 \begin{agda}
 raise  : F a -> Eff [F] a
 handle : ($\forall$ x -> F x -> x) -> Eff E a -> Eff (E - F) a
-escape : Eff [] a -> a
 \end{agda}
 %
-where \haskin{E - F} deletes \haskin{F} from the list
-of effects. Note the grades give an account of what
-effects needs handling, manipulated and leveraged
-by these operations.
-
-
+We can also `run' a computation once all effects are
+handled:
+%
+\begin{agda}
+run : Eff [] a -> a
+\end{agda}
+%
 \section{Leveraging MaybeT and MonadFail}
 
 In Haskell, if a \emph{do}-expression performs a pattern
@@ -333,9 +332,9 @@ where, for all monadic computations \haskin{x :: m a}:
 %
 i.e., failure is global and non-recoverable.
 
-We have given this a more abstract mathematical definition,
+We give an abstract mathematical definition,
 ignoring the \haskin{String} aspect in favour of a map
-from a terminal object $1$.
+from the terminal object $1$.
 %
 \begin{definition}[Failing monad]
   For a category $\mathcal{C}$ with terminal object $1$
@@ -347,7 +346,7 @@ $$
 \mu \circ T (g \circ !_A) \circ \mathit{fail}_A = \mathit{fail}_B
 $$
 \end{definition}
-
+%
 If we attempt to give a \haskin{MonadFail} instance for the free
 monad, we get stuck immediately: the free monad, is the monad for
 which exactly the monad equations hold and nothing more, i.e.,
@@ -357,8 +356,8 @@ capturing computation trees (for the purposes of effect handling)
 but also the property of non-recoverable failure captured
 by \haskin{MonadFail}. The simplest construction to support the
 above law generally is provided by the ``\haskin{MaybeT}''
-\emph{monad transformer}~\cite{transformerpub}, which
-in Haskell is typically defined as follows:
+\emph{monad transformer}~\cite{transformerpub},
+in Haskell defined as:
 %
 \begin{haskell}
 newtype MaybeT m a = MaybeT (m (Maybe a))
@@ -371,21 +370,22 @@ $M -$ to $M (1 + -)$.
 %$MaybeT m x = m (Maybe x)$
 %
 We can think of \haskin{MaybeT} as an extension by an arbitrary,
-single option failure case. Applying this to the free monad
-structure yields a lawful instance of \haskin{MonadFail}:
+single option failure case. The \haskin{MaybeT} transformer
+gives a lawful instance of \haskin{MonadFail} for all monads:
 %
 \begin{haskell}
-  instance MonadFail (MaybeT m a) where
+  instance Monad m => MonadFail (MaybeT m a) where
     fail _ = MaybeT (return Nothing)
 \end{haskell}
 %
 %especially in the strucutre of
 %a Free monad as Monad is Pure and fixed point of a functor with this identity case.
-
-However, we still require \emph{freeness} of this structure in order
+We can thus apply this idea to our \haskin{Eff} construction,
+yielding a failing monad.
+However, we still require \emph{freeness} of the \haskin{MaybeT Eff} in order
 to yield a suitable semantic core for handling algebraic effects
-(augmented with non-recoverable failure). We therefore ask,
-\emph{is the above the ``free MonadFail'' structure?}.
+(augmented with non-recoverable failure). We thus ask,
+\emph{is \haskin{MaybeT Eff} the free failing monad?}.
 
 We have to modify handling, we state a different form of initiality, while the initiality can be thought of as a principle,
 $ (F\:A \rightarrow A) \rightarrow (Free\:F\:A \rightarrow A) $, the correct handling for free MonadFail is $ (F\:A \rightarrow A) \rightarrow FreeFail\:F\:A \rightarrow Maybe\:A$
@@ -398,32 +398,34 @@ To run EffectFail we either want to extract the underlying result or propagate t
 
 \paragraph{Algebraic freeness}
 
-A monad $T$ is \emph{algebraically free on an endofunctor $F$} is
+A monad $T$ is \emph{algebraically free on an endofunctor $F$} if
 the category of $T$-algebras (monad algebras) is isomorphic to the category of
 $F$-algebras. An algebraically-free monad is itself a free monad~\cite{nlab:free_monad,kelly_1980}.
-Therefore, in order to consider the notion of a ``free failing
-monad'', we characterise the category of \haskin{MonadFail} algebras.
+Thus, to consider the notion of a ``free failing
+monad'', we characterise the category of failing monad algebras.
 
-\begin{definition}[Monad algebras]
-  For a monad on $T : \mathcal{C} \rightarrow \mathcal{C}$, the category of monad algebras if the category
-  of $T$-algebras which are compatible with the monad operations. That
-  is $T\textsf{Alg}_{\mathsf{mnd}}$ is a category with objects as
-  pairs $(A, h)$ where $A \in |\mathcal{C}|$ and $h \in \mathcal{C}(T\
-  A, A)$ satisfying compatibility
-  with the monad operations: $h \circ \eta = id$ and $h \circ \mu = h
-  \circ T h$.
-\end{definition}
+% \begin{definition}[Monad algebras]
+%   For a monad on $T : \mathcal{C} \rightarrow \mathcal{C}$, the category of monad algebras if the category
+%   of $T$-algebras which are compatible with the monad operations. That
+%   is $T\textsf{Alg}_{\mathsf{mnd}}$ is a category with objects as
+%   pairs $(A, h)$ where $A \in |\mathcal{C}|$ and $h \in \mathcal{C}(T\
+%   A, A)$ satisfying compatibility
+%   with the monad operations: $h \circ \eta = id$ and $h \circ \mu = h
+%   \circ T h$.
+% \end{definition}
 
-We extend this idea to to algebras of failing monads.
+%We extend this idea to to algebras of failing monads.
 
 \begin{definition}[Failing monad algebras]
   For a %terminal object $1$ and
   failing monad $T : \mathcal{C} \rightarrow \mathcal{C}$, the
   category of its algebras
-  $T\textsf{Alg}_{\mathsf{mndFail}}$ is a category of monad algebras, with objects
-  $(A, h)$ where
-  $h \in \mathcal{C}(T A, A)$ is compatible with the monad operations
-  and there exists a morphism $h' : 1 \rightarrow A$ such that:
+  $T\textsf{Alg}_{\mathsf{mndFail}}$ is a category of monad algebras, i.e., with objects
+  $(A, h)$ where $A \in |\mathcal{C}|$ and
+  $h \in \mathcal{C}(T A, A)$ compatible with the monad operations:
+  $h \circ \eta = id$ and $h \circ \mu = h
+  \circ T h$, and furthermore
+  there exists a morphism $h' : 1 \rightarrow A$ such that:
   %
 \begin{equation}
 \label{eq:fail-compat}
