@@ -8,3 +8,6 @@ full:
 	bibtex HOPE-sigplanned
 	pdflatex HOPE-sigplanned.tex
 	pdflatex HOPE-sigplanned.tex
+
+clean:
+	rm -f *.aux *.log *.bbl *.blg *.out
