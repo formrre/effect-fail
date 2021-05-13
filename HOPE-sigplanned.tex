@@ -129,6 +129,11 @@ setting of \emph{algebraic effects}, extending algebraic
 effects to include a notion of (non-recoverable) failure
 as captured by \haskin{MonadFail}.
 
+Failure of this form has been a staple feature of \emph{monad transformer frameworks}~\cite{transformerpub}, which can express the above pattern.
+Monad transformers do not provide as much flexibility as \emph{algebraic effects}~\cite{freerm}
+and need more complex code to express many patterns.
+We explore how to combine these two ideas.
+
 Our development is formalised in dependent-type theory
 (we use Agda \cite{repo}) capturing
 the mathematical results for the key
